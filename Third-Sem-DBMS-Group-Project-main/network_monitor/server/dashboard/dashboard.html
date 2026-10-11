@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Network Monitor Dashboard</title>
+
+    <link rel="stylesheet" href="/dashboard/css/dashboard.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+
+<div class="header">
+
+    <h1>
+        Network Monitor
+    </h1>
+
+    <p>
+        Network Monitoring Dashboard
+    </p>
+
+</div>
+
+
+
+<!-- =========================================================
+     MAIN
+     ========================================================= -->
+
+<div class="container">
+
+
+    <!-- =====================================================
+         REFRESH BAR
+         ===================================================== -->
+
+    <div class="refresh">
+
+        <button
+            id="refreshButton"
+            onclick="manualRefresh()"
+        >
+            Refresh Dashboard
+        </button>
+
+
+        <span
+            id="lastUpdated"
+            class="refresh-status"
+        >
+            Waiting for data...
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         ERROR
+         ===================================================== -->
+
+    <div
+        id="errorMessage"
+        class="error-message"
+    >
+    </div>
+
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+         ===================================================== -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Total Devices
+            </div>
+
+            <div
+                class="card-value"
+                id="totalDevices"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Active Devices
+            </div>
+
+            <div
+                class="card-value"
+                id="activeDevices"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Network Events
+            </div>
+
+            <div
+                class="card-value"
+                id="totalEvents"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Unique Destinations
+            </div>
+
+            <div
+                class="card-value"
+                id="uniqueDestinations"
+            >
+                -
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+
+    <!-- =====================================================
+         SECURITY ALERTS
+         ===================================================== -->
+
+    <div class="panel alerts-panel">
+
+        <h2>
+            Security Alerts
+        </h2>
+
+        <div class="alert-summary">
+
+            <div class="alert-summary-card">
+                <span>Total</span>
+                <strong id="alertTotal">0</strong>
+            </div>
+
+            <div class="alert-summary-card">
+                <span>Open</span>
+                <strong id="alertOpen">0</strong>
+            </div>
+
+            <div class="alert-summary-card">
+                <span>Critical</span>
+                <strong id="alertCritical">0</strong>
+            </div>
+
+            <div class="alert-summary-card">
+                <span>High</span>
+                <strong id="alertHigh">0</strong>
+            </div>
+
+            <div class="alert-summary-card">
+                <span>Medium</span>
+                <strong id="alertMedium">0</strong>
+            </div>
+
+            <div class="alert-summary-card">
+                <span>Low</span>
+                <strong id="alertLow">0</strong>
+            </div>
+
+        </div>
+
+        <div
+            class="alerts-table-container"
+            style="overflow-x:auto;"
+        >
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Alert</th>
+                        <th>Device</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                        <th>Detected</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="alertsTableBody">
+
+                    <tr>
+                        <td
+                            colspan="6"
+                            style="text-align:center"
+                        >
+                            Loading alerts...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DEVICES
+         ===================================================== -->
+
+    <div class="panel devices-panel">
+
+        <h2>
+            Connected Devices
+        </h2>
+
+
+        <div
+            id="devicesContainer"
+            class="devices-grid"
+        >
+
+            Loading devices...
+
+        </div>
+
+    </div>
+
+
+
+
+    <!-- EVENTS OVER TIME -->
+    <div class="panel chart-panel">
+        <h2>Events Over Time</h2>
+        <div id="eventsChartStatus" class="chart-status">Loading event history...</div>
+        <div class="chart-wrapper">
+            <canvas id="eventsOverTimeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         TOP DESTINATIONS
+         ===================================================== -->
+
+    <div class="panel top-destinations-panel">
+
+        <h2>
+            Top Destinations
+        </h2>
+
+        <div
+            id="topDestinationsStatus"
+            class="top-destinations-status"
+        >
+            Loading destination statistics...
+        </div>
+
+        <div class="top-destinations-chart-wrapper">
+            <canvas id="topDestinationsChart"></canvas>
+        </div>
+
+    </div>
+    <!-- =====================================================
+     TCP VS UDP
+     ===================================================== -->
+
+    <div class="panel">
+
+        <h2>
+            TCP vs UDP Traffic
+        </h2>
+
+        <div
+            id="protocolChartStatus"
+            class="chart-status"
+        >
+            Loading protocol statistics...
+        </div>
+
+        <div
+            class="protocol-chart-wrapper"
+        >
+            <canvas
+                id="protocolChart"
+            ></canvas>
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         PROTOCOL + RECENT ACTIVITY
+         ===================================================== -->
+
+    <div class="content">
+
+
+        <!-- =================================================
+             PROTOCOL STATISTICS
+             ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Protocol Statistics
+            </h2>
+
+
+            <div id="protocolStats">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             RECENT ACTIVITY
+             ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Recent Network Activity
+            </h2>
+
+
+            <div
+                style="overflow-x:auto"
+            >
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Device
+                            </th>
+
+                            <th>
+                                Destination
+                            </th>
+
+                            <th>
+                                Domain
+                            </th>
+
+                            <th>
+                                Protocol
+                            </th>
+
+                            <th>
+                                Source Port
+                            </th>
+
+                            <th>
+                                Destination Port
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="activityTable"
+                    >
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+
+<!-- DEVICE ACTIVITY MODAL -->
+<div id="deviceActivityModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="deviceModalTitle">Device Activity</h2>
+      <span class="close-modal" onclick="closeDeviceActivity()">&times;</span>
+    </div>
+    <div id="deviceDetailsContent" class="loading-details">Loading device activity...</div>
+    <div class="device-info-large">
+      <h3>Recent Network Activity</h3>
+      <div class="activity-table-container">
+        <table>
+          <thead><tr>
+            <th>Time</th><th>Destination</th><th>Domain</th>
+            <th>Protocol</th><th>Source Port</th><th>Destination Port</th>
+          </tr></thead>
+          <tbody id="deviceActivityTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+
+<script src="/dashboard/js/charts.js"></script>
+<script src="/dashboard/js/device_activity.js"></script>
+<script src="/dashboard/js/alerts.js"></script>
+<script src="/dashboard/js/dashboard.js"></script>
+
+</body>
+
+</html>

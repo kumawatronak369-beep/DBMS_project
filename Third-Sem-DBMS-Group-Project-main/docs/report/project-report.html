@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Private Network Monitoring System - Project Report</title>
+<style>
+  :root {
+    --ink: #0f172a; --muted: #475569; --faint: #94a3b8; --line: #e2e8f0; --soft: #f8fafc;
+    --accent: #2563eb; --accent-soft: #eff6ff; --green: #059669; --green-soft: #ecfdf5;
+    --amber: #b45309; --amber-soft: #fffbeb; --red: #dc2626; --red-soft: #fef2f2; --violet: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--ink); background: #fff; font: 15px/1.65 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .page { max-width: 980px; margin: 0 auto; padding: 0 28px 80px; }
+  h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -0.01em; }
+  h2 { font-size: 26px; margin: 56px 0 6px; padding-top: 18px; border-top: 3px solid var(--ink); }
+  h2 .n { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 19px; margin: 34px 0 6px; }
+  h4 { font-size: 15px; margin: 22px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  p { margin: 8px 0 12px; }
+  ul, ol { padding-left: 22px; margin: 8px 0 14px; }
+  li { margin: 4px 0; }
+  code, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .88em; background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px 16px; overflow-x: auto; font: 13px/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace; margin: 12px 0 18px; }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+  a { color: var(--accent); }
+  .cover { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+  .cover .kicker { color: var(--accent); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
+  .cover h1 { font-size: 46px; margin: 10px 0 8px; }
+  .cover p.lead { font-size: 19px; color: var(--muted); max-width: 720px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+  .chip { border: 1px solid var(--line); background: var(--soft); border-radius: 999px; padding: 4px 12px; font-size: 13px; color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 26px 0 0; }
+  .stat { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 28px; line-height: 1.1; }
+  .stat span { color: var(--muted); font-size: 13px; }
+  nav.toc { background: var(--soft); border: 1px solid var(--line); border-radius: 10px; padding: 18px 24px; margin: 32px 0 0; columns: 2; column-gap: 40px; }
+  nav.toc h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); column-span: all; }
+  nav.toc a { display: block; padding: 3px 0; text-decoration: none; color: var(--ink); break-inside: avoid; }
+  nav.toc a:hover { color: var(--accent); }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.green { border-color: var(--green); background: var(--green-soft); }
+  .callout.amber { border-color: var(--amber); background: var(--amber-soft); }
+  .callout.red { border-color: var(--red); background: var(--red-soft); }
+  .callout p { margin: 4px 0; }
+  .callout b.t { display: block; margin-bottom: 2px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  td.c, th.c { text-align: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: #fff; }
+  .card h4 { margin: 0 0 4px; color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 16px; }
+  .card p { margin: 4px 0; font-size: 14px; color: var(--muted); }
+  figure { margin: 22px 0 26px; }
+  figure .frame { border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 12px; overflow-x: auto; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  figcaption b { color: var(--ink); }
+  svg.fig { width: 100%; height: auto; display: block; min-width: 640px; }
+  svg text { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .b { fill: #fff; stroke: #94a3b8; stroke-width: 1.5; }
+  .ba { fill: var(--accent-soft); stroke: var(--accent); }
+  .bg { fill: var(--green-soft); stroke: var(--green); }
+  .bw { fill: var(--amber-soft); stroke: #d97706; }
+  .br { fill: var(--red-soft); stroke: var(--red); }
+  .bs { fill: var(--soft); stroke: #cbd5e1; }
+  .bd { fill: none; stroke: #64748b; stroke-width: 1.4; stroke-dasharray: 6 5; }
+  .t { font-size: 14.5px; font-weight: 700; fill: var(--ink); }
+  .s { font-size: 12.5px; fill: var(--muted); }
+  .lbl { font-size: 12px; fill: #334155; }
+  .ar { stroke: #475569; stroke-width: 1.7; fill: none; marker-end: url(#ah); }
+  .ar2 { stroke: #475569; stroke-width: 1.7; fill: none; marker-start: url(#ah); marker-end: url(#ah); }
+  .tb { fill: #fff; stroke: #94a3b8; stroke-width: 1.4; }
+  .tba { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .tl { stroke: #cbd5e1; stroke-width: 1; fill: none; }
+  .tn { font: 700 14px ui-monospace, Consolas, monospace; fill: var(--ink); }
+  .tc { font: 12.5px ui-monospace, Consolas, monospace; fill: #334155; }
+  .tag { font: 700 10.5px -apple-system, "Segoe UI", sans-serif; }
+  .tag.PK { fill: #b45309; } .tag.FK { fill: var(--accent); } .tag.UQ { fill: var(--violet); } .tag.GEN { fill: #64748b; }
+  .rel { stroke: #475569; stroke-width: 1.7; fill: none; }
+  text.kd { font: 700 13px -apple-system, "Segoe UI", sans-serif; fill: var(--ink); }
+  .relt { font-size: 12px; fill: #475569; font-style: italic; }
+  .ok { fill: var(--green); } .dupe { fill: #94a3b8; }
+  .tiny { font-size: 11px; fill: var(--muted); }
+  .sample td, .sample th { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
+  .sample td:first-child { background: var(--accent-soft); }
+  .tabname { font-weight: 700; margin: 14px 0 -8px; font-family: ui-monospace, Consolas, monospace; font-size: 14px; }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid; }
+  .pill.admin { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .pill.analyst { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+  .pill.key { color: var(--violet); border-color: var(--violet); }
+  footer { margin-top: 60px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+  @media (max-width: 760px) {
+    .stats { grid-template-columns: repeat(2, 1fr); } .grid2, .grid3 { grid-template-columns: 1fr; } nav.toc { columns: 1; }
+    .cover h1 { font-size: 34px; }
+  }
+  @media print {
+    @page { size: A4; margin: 16mm 14mm; }
+    body { font-size: 11.5px; }
+    .page { max-width: none; padding: 0; }
+    h2 { break-before: page; margin-top: 0; }
+    h2.nobreak { break-before: auto; }
+    figure, .card, table, pre, .callout { break-inside: avoid; }
+    svg.fig { min-width: 0; }
+    .cover { padding-top: 20mm; }
+    nav.toc a { color: #000; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker>
+</defs></svg>
+<div class="page">
+
+<!-- ============================================================ COVER -->
+<header class="cover">
+  <div class="kicker">DBMS College Project - Project Report</div>
+  <h1>Private Network Monitoring System</h1>
+  <p class="lead">A web application that records which devices on an authorized network reached which destinations, and when. It stores that metadata in a normalized MySQL database and lets administrators search, investigate and report on it through a dashboard.</p>
+  <div class="chips">
+    <span class="chip">Python + FastAPI</span><span class="chip">SQLAlchemy 2</span><span class="chip">MySQL 9</span>
+    <span class="chip">React 19 + Vite</span><span class="chip">Tailwind CSS 4</span><span class="chip">JWT + bcrypt</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>6</b><span>database tables</span></div>
+    <div class="stat"><b>32</b><span>REST API endpoints</span></div>
+    <div class="stat"><b>12</b><span>dashboard pages</span></div>
+    <div class="stat"><b>864</b><span>automated tests</span></div>
+  </div>
+  <nav class="toc" aria-label="Contents">
+    <h3>Contents</h3>
+    <a href="#s1">1. Introduction</a>
+    <a href="#s2">2. The big picture</a>
+    <a href="#s3">3. The journey of one event</a>
+    <a href="#s4">4. The collector</a>
+    <a href="#s5">5. The backend (FastAPI)</a>
+    <a href="#s6">6. Ingestion and the 30-second rule</a>
+    <a href="#s7">7. The database</a>
+    <a href="#s8">8. The frontend (React)</a>
+    <a href="#s9">9. Security</a>
+    <a href="#s10">10. Testing and quality</a>
+    <a href="#s11">11. Running the project</a>
+    <a href="#s12">12. Limitations and future work</a>
+    <a href="#s13">13. Glossary</a>
+  </nav>
+</header>
+
+<!-- ============================================================ 1 -->
+<h2 id="s1" class="nobreak"><span class="n">1</span>Introduction</h2>
+
+<h3>1.1 The problem, in plain words</h3>
+<p>Every time a computer opens a website or connects to a server, it contacts another machine on the network. Someone who runs a network (a school computer lab, a library, a small office, a home) often needs to answer simple questions: <i>Which computer visited this site? What did this computer connect to yesterday afternoon? Which sites are most used?</i> Answering those questions from raw log files is slow and error prone.</p>
+<p>This project solves that. A small program called a <b>collector</b> reports "device X reached destination Y at time T". A <b>backend</b> checks and stores those reports in a <b>database</b>. A <b>web dashboard</b> shows the stored data as tables, charts and reports, with search and filters.</p>
+
+<h3>1.2 What it records, and what it never records</h3>
+<div class="grid2">
+  <div class="callout green"><b class="t">Recorded (metadata only)</b>
+    <p>Which device, which destination IP address, the domain name when known, the time, and optionally the protocol (TCP/UDP) and the two port numbers.</p></div>
+  <div class="callout red"><b class="t">Never recorded</b>
+    <p>Passwords, cookies, messages, page contents, request or response bodies, packet payloads, keystrokes, or the names of programs.</p></div>
+</div>
+<p>The system is intended <b>only for networks and devices the operator is authorized to monitor</b>, and whose users know about it. It contains no packet sniffing, scanning or discovery code.</p>
+
+<h3>1.3 Who uses it</h3>
+<table>
+  <tr><th>Role</th><th>What they can do</th></tr>
+  <tr><td><span class="pill admin">ADMIN</span></td><td>Everything an analyst can do, plus add, edit and disable nodes (observation points), and add, edit and disable user accounts.</td></tr>
+  <tr><td><span class="pill analyst">ANALYST</span></td><td>Read-only: view the dashboard, nodes, devices, destinations and history, search and filter, and generate reports.</td></tr>
+  <tr><td><span class="pill key">COLLECTOR</span></td><td>Not a person. A program that can only submit events, using its own API key that belongs to exactly one node.</td></tr>
+</table>
+
+<h3>1.4 Project goals</h3>
+<ul>
+  <li><b>Database design first:</b> a normalized schema with real foreign keys, constraints, indexes and transactions, explained in Section 7.</li>
+  <li><b>A working, full-stack system:</b> not only a user interface. Real data flows from a collector through an API into MySQL and back out to the browser.</li>
+  <li><b>Clean architecture:</b> each layer has one job (router, service, repository), so the code is easy to explain and test.</li>
+  <li><b>Security basics done properly:</b> hashed passwords, token authentication, role checks enforced on the server, and API keys for collectors.</li>
+</ul>
+
+<!-- ============================================================ 2 -->
+<h2 id="s2"><span class="n">2</span>The big picture</h2>
+<p>The system has four building blocks that pass data in one direction and answer questions in the other.</p>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 430" class="fig" role="img" aria-label="Architecture: collector to FastAPI to MySQL, with the React dashboard reading from FastAPI">
+  <rect class="b ba" x="30" y="60" width="210" height="120" rx="10"/>
+  <text class="t" x="135" y="92" text-anchor="middle">1. Collector</text>
+  <text class="s" x="135" y="114" text-anchor="middle">Python program</text>
+  <text class="s" x="135" y="132" text-anchor="middle">runs at an authorized</text>
+  <text class="s" x="135" y="150" text-anchor="middle">place (simulator or this PC)</text>
+
+  <rect class="b bg" x="345" y="60" width="210" height="120" rx="10"/>
+  <text class="t" x="450" y="92" text-anchor="middle">2. FastAPI backend</text>
+  <text class="s" x="450" y="114" text-anchor="middle">checks who is calling</text>
+  <text class="s" x="450" y="132" text-anchor="middle">validates, applies the</text>
+  <text class="s" x="450" y="150" text-anchor="middle">30-second rule</text>
+
+  <rect class="b bw" x="660" y="60" width="210" height="120" rx="10"/>
+  <text class="t" x="765" y="92" text-anchor="middle">3. MySQL database</text>
+  <text class="s" x="765" y="114" text-anchor="middle">6 related tables</text>
+  <text class="s" x="765" y="132" text-anchor="middle">keys, constraints,</text>
+  <text class="s" x="765" y="150" text-anchor="middle">indexes, transactions</text>
+
+  <path class="ar" d="M240 120 H345"/>
+  <text class="lbl" x="292" y="108" text-anchor="middle">POST event</text>
+  <text class="lbl" x="292" y="140" text-anchor="middle">X-API-Key</text>
+  <path class="ar2" d="M555 120 H660"/>
+  <text class="lbl" x="607" y="108" text-anchor="middle">SQL via</text>
+  <text class="lbl" x="607" y="140" text-anchor="middle">SQLAlchemy</text>
+
+  <rect class="b ba" x="345" y="290" width="210" height="110" rx="10"/>
+  <text class="t" x="450" y="322" text-anchor="middle">4. React dashboard</text>
+  <text class="s" x="450" y="344" text-anchor="middle">pages, tables, charts,</text>
+  <text class="s" x="450" y="362" text-anchor="middle">search, reports</text>
+  <path class="ar2" d="M450 290 V180"/>
+  <text class="lbl" x="462" y="228">REST API + login token (JWT)</text>
+  <text class="lbl" x="462" y="246">JSON in both directions</text>
+
+  <rect class="b bs" x="30" y="300" width="210" height="90" rx="10"/>
+  <text class="t" x="135" y="334" text-anchor="middle">Administrator</text>
+  <text class="s" x="135" y="356" text-anchor="middle">uses a web browser</text>
+  <path class="ar" d="M240 345 H345"/>
+
+  <rect class="bd" x="660" y="290" width="210" height="110" rx="10"/>
+  <text class="s" x="765" y="334" text-anchor="middle">The browser never talks</text>
+  <text class="s" x="765" y="352" text-anchor="middle">to MySQL. Only the backend</text>
+  <text class="s" x="765" y="370" text-anchor="middle">touches the database.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1.</b> The four building blocks. Events travel left to right into the database. Questions from the administrator travel through the React dashboard and the FastAPI backend, and the answers come back as JSON.</figcaption>
+</figure>
+
+<div class="grid2">
+  <div class="card"><h4>Why a separate collector?</h4><p>A website cannot see your network by itself. Something has to sit at a place that can observe activity and report it. Keeping this as its own small program means the website and database do not change if the data source changes (simulator today, a real data source tomorrow).</p></div>
+  <div class="card"><h4>Why a backend between the browser and database?</h4><p>The browser is not trusted. The backend is where logins, roles, validation and business rules are enforced, so nobody can bypass them by editing the web page. The frontend is only a convenience layer.</p></div>
+</div>
+
+<h3>2.1 Folder structure</h3>
+<pre><code>network-monitor/
+  backend/        FastAPI application (api, services, repositories, models, schemas, core)
+    alembic/      database migrations (for later schema changes)
+    tests/        backend tests (run against real MySQL)
+  collector/      collector.py (simulator + real local modes), api_client, tcp_collector, tests
+  frontend/       React app (pages, components, hooks, services) + Vitest tests
+  database/       schema.sql, seed.sql, queries.sql, reset.sql
+  docs/           API notes, architecture notes, ER diagram, this report</code></pre>
+
+<!-- ============================================================ 3 -->
+<h2 id="s3"><span class="n">3</span>The journey of one event</h2>
+<p>The best way to understand the whole system is to follow one event from start to finish. Imagine the computer <span class="mono">PC-LAB-A-001</span> opens <span class="mono">github.com</span>.</p>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 690" class="fig" role="img" aria-label="Flow of one collector event through the backend">
+  <rect class="bd" x="135" y="140" width="400" height="530" rx="12"/>
+  <text class="s" x="125" y="410" text-anchor="middle" transform="rotate(-90 125 410)">ONE DATABASE TRANSACTION (all or nothing)</text>
+
+  <rect class="b ba" x="150" y="12" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="40" text-anchor="middle">1  Collector sends the event + X-API-Key header</text>
+  <path class="ar" d="M335 58 V76"/>
+  <rect class="b" x="150" y="76" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="104" text-anchor="middle">2  Hash the key, look it up (identifies the node)</text>
+  <path class="ar" d="M335 122 V152"/>
+  <rect class="b" x="150" y="152" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="180" text-anchor="middle">3  Validate the payload</text>
+  <path class="ar" d="M335 198 V216"/>
+  <rect class="b" x="150" y="216" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="244" text-anchor="middle">4  Lock the node, make sure it is not disabled</text>
+  <path class="ar" d="M335 262 V280"/>
+  <rect class="b" x="150" y="280" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="308" text-anchor="middle">5  Find or create the device (node + identifier)</text>
+  <path class="ar" d="M335 326 V344"/>
+  <rect class="b" x="150" y="344" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="372" text-anchor="middle">6  Find or create the destination (ip + domain)</text>
+  <path class="ar" d="M335 390 V408"/>
+  <rect class="b bw" x="150" y="408" width="370" height="54" rx="8"/>
+  <text class="t" x="335" y="432" text-anchor="middle">7  Same device + destination within 30 s?</text>
+  <text class="s" x="335" y="451" text-anchor="middle">previous matching event 30 s before or after</text>
+  <path class="ar" d="M335 462 V484"/>
+  <text class="lbl" x="345" y="478">no</text>
+  <rect class="b" x="150" y="484" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="512" text-anchor="middle">8  Insert the row into network_history</text>
+  <path class="ar" d="M335 530 V548"/>
+  <rect class="b" x="150" y="548" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="576" text-anchor="middle">9  Update last_seen (device, destination, node)</text>
+  <path class="ar" d="M335 594 V612"/>
+  <rect class="b bg" x="150" y="612" width="370" height="46" rx="8"/>
+  <text class="t" x="335" y="640" text-anchor="middle">10  COMMIT, answer 201 STORED</text>
+
+  <path class="ar" d="M520 99 H610"/><rect class="b br" x="610" y="76" width="270" height="46" rx="8"/>
+  <text class="t" x="745" y="104" text-anchor="middle">401 Unauthorized</text>
+  <path class="ar" d="M520 175 H610"/><rect class="b br" x="610" y="152" width="270" height="46" rx="8"/>
+  <text class="t" x="745" y="180" text-anchor="middle">422 Invalid event</text>
+  <path class="ar" d="M520 239 H610"/><rect class="b br" x="610" y="216" width="270" height="46" rx="8"/>
+  <text class="t" x="745" y="244" text-anchor="middle">403 Node disabled</text>
+  <path class="ar" d="M520 435 H610"/><text class="lbl" x="530" y="428">yes</text>
+  <rect class="b bw" x="610" y="408" width="270" height="54" rx="8"/>
+  <text class="t" x="745" y="432" text-anchor="middle">200 DUPLICATE</text>
+  <text class="s" x="745" y="451" text-anchor="middle">nothing is stored</text>
+  <rect class="b bs" x="610" y="548" width="270" height="110" rx="8"/>
+  <text class="s" x="745" y="574" text-anchor="middle">Any unexpected error in steps</text>
+  <text class="s" x="745" y="592" text-anchor="middle">3 to 10 rolls the whole</text>
+  <text class="s" x="745" y="610" text-anchor="middle">transaction back, so the</text>
+  <text class="s" x="745" y="628" text-anchor="middle">database is never half-updated.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2.</b> What the backend does for every event. The left column is the success path; the boxes on the right are the ways it can end early. The node is always taken from the API key, never from the event itself.</figcaption>
+</figure>
+
+<h3>3.1 The same journey as a story</h3>
+<ol>
+  <li><b>The collector</b> notices that <span class="mono">PC-LAB-A-001</span> connected to <span class="mono">203.0.113.20</span> (<span class="mono">github.com</span>) and builds a small JSON message.</li>
+  <li><b>It sends the message</b> to <span class="mono">POST /api/collector/events</span> with a secret API key in a header.</li>
+  <li><b>The backend identifies the caller.</b> It hashes the key (SHA-256) and finds the matching row in <span class="mono">collector_api_keys</span>. That row says which node (for example <i>Computer Lab A</i>) the caller belongs to. If the key is unknown or revoked, the answer is 401.</li>
+  <li><b>It validates the message.</b> A <span class="mono">nodeId</span> in the message is rejected on purpose: a collector must not be able to claim it belongs to a different node.</li>
+  <li><b>It resolves the entities.</b> The device is looked up by node + <span class="mono">device_identifier</span> and created if new. The destination is looked up by IP + domain and created if new.</li>
+  <li><b>It applies the 30-second rule</b> (Section 6). If the same device already reached the same destination within 30 seconds, nothing is stored and the answer is <span class="mono">DUPLICATE</span>.</li>
+  <li><b>It stores the event</b> in <span class="mono">network_history</span>, updates the three <span class="mono">last_seen</span> columns and commits the transaction.</li>
+  <li><b>The dashboard</b> asks the API for summaries and lists every few seconds, and the new row appears in the tables and charts.</li>
+</ol>
+
+<!-- ============================================================ 4 -->
+<h2 id="s4"><span class="n">4</span>The collector</h2>
+<p>The collector is one Python program (<span class="mono">collector/collector.py</span>) with several modes. All modes send events through the <b>same</b> API endpoint, so the backend neither knows nor cares which mode produced an event.</p>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 330" class="fig" role="img" aria-label="Three collector modes feeding one API endpoint">
+  <rect class="b ba" x="20" y="20" width="270" height="140" rx="10"/>
+  <text class="t" x="155" y="50" text-anchor="middle">Simulator</text>
+  <text class="s" x="155" y="70" text-anchor="middle">python collector.py</text>
+  <text class="s" x="155" y="94" text-anchor="middle">Invents realistic events for the</text>
+  <text class="s" x="155" y="112" text-anchor="middle">seeded demo devices. Used for</text>
+  <text class="s" x="155" y="130" text-anchor="middle">classroom demonstrations.</text>
+
+  <rect class="b bg" x="315" y="20" width="270" height="140" rx="10"/>
+  <text class="t" x="450" y="50" text-anchor="middle">Real local TCP collector</text>
+  <text class="s" x="450" y="70" text-anchor="middle">python collector.py local</text>
+  <text class="s" x="450" y="94" text-anchor="middle">Reads this Windows PC's own TCP</text>
+  <text class="s" x="450" y="112" text-anchor="middle">connection table: IPs, ports,</text>
+  <text class="s" x="450" y="130" text-anchor="middle">protocol, time.</text>
+
+  <rect class="b bw" x="610" y="20" width="270" height="140" rx="10"/>
+  <text class="t" x="745" y="50" text-anchor="middle">Real local DNS collector</text>
+  <text class="s" x="745" y="70" text-anchor="middle">python collector.py local-dns</text>
+  <text class="s" x="745" y="94" text-anchor="middle">Reads this PC's DNS cache: the</text>
+  <text class="s" x="745" y="112" text-anchor="middle">site names it looked up, with no</text>
+  <text class="s" x="745" y="130" text-anchor="middle">ports.</text>
+
+  <path class="ar" d="M155 160 V200 H340 V230"/>
+  <path class="ar" d="M450 160 V230"/>
+  <path class="ar" d="M745 160 V200 H560 V230"/>
+  <rect class="b" x="260" y="230" width="380" height="64" rx="10"/>
+  <text class="t" x="450" y="257" text-anchor="middle">POST /api/collector/events</text>
+  <text class="s" x="450" y="277" text-anchor="middle">one API, one JSON shape, one API key per node</text>
+</svg>
+</div>
+<figcaption><b>Figure 3.</b> Three ways to produce events, one way to deliver them.</figcaption>
+</figure>
+
+<h3>4.1 What an event looks like</h3>
+<pre><code>{
+  "deviceIdentifier": "PC-LAB-A-001",
+  "deviceIp":        "192.168.10.21",
+  "destinationIp":   "203.0.113.20",
+  "domain":          "github.com",
+  "timestamp":       "2026-09-21T11:08:30",
+  "protocol":        "TCP",        // optional
+  "sourcePort":      56188,        // optional
+  "destinationPort": 443           // optional
+}</code></pre>
+<p>There is deliberately <b>no node id</b>. The node comes from the API key. Protocol and ports are optional because the simulator and the DNS mode cannot observe them.</p>
+
+<h3>4.2 The simulator</h3>
+<p>Builds events for the seeded demo devices using documentation IP ranges (<span class="mono">192.0.2.0/24</span>, <span class="mono">198.51.100.0/24</span>, <span class="mono">203.0.113.0/24</span>) that do not belong to real organizations. It deliberately repeats some events so the 30-second rule can be shown live (<span class="mono">python collector.py demo-dedup</span>). The dashboard marks demonstration data with a "Demo data" badge.</p>
+
+<h3>4.3 The real local TCP collector</h3>
+<p>On Windows, the operating system keeps a table of every TCP connection. The collector reads it with the built-in IP Helper function <span class="mono">GetExtendedTcpTable</span> through Python's standard <span class="mono">ctypes</span>. That needs <b>no administrator rights and no extra software</b> (no Npcap, no Scapy).</p>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 250" class="fig" role="img" aria-label="Polling loop of the local TCP collector">
+  <rect class="b ba" x="10" y="20" width="130" height="90" rx="8"/>
+  <text class="t" x="75" y="50" text-anchor="middle">Windows</text><text class="t" x="75" y="68" text-anchor="middle">TCP table</text><text class="s" x="75" y="90" text-anchor="middle">polled every 2 s</text>
+  <rect class="b" x="165" y="20" width="140" height="90" rx="8"/>
+  <text class="t" x="235" y="46" text-anchor="middle">Keep outbound</text><text class="t" x="235" y="64" text-anchor="middle">ESTABLISHED</text><text class="s" x="235" y="86" text-anchor="middle">drop listening,</text><text class="s" x="235" y="100" text-anchor="middle">loopback, own IP</text>
+  <rect class="b" x="330" y="20" width="140" height="90" rx="8"/>
+  <text class="t" x="400" y="46" text-anchor="middle">Only NEW ones</text><text class="s" x="400" y="68" text-anchor="middle">compare with the</text><text class="s" x="400" y="82" text-anchor="middle">previous poll, so each</text><text class="s" x="400" y="96" text-anchor="middle">connection counts once</text>
+  <rect class="b bw" x="495" y="20" width="140" height="90" rx="8"/>
+  <text class="t" x="565" y="46" text-anchor="middle">Domain?</text><text class="s" x="565" y="68" text-anchor="middle">use the DNS cache only</text><text class="s" x="565" y="82" text-anchor="middle">if exactly ONE name</text><text class="s" x="565" y="96" text-anchor="middle">maps to the IP, else null</text>
+  <rect class="b" x="660" y="20" width="110" height="90" rx="8"/>
+  <text class="t" x="715" y="52" text-anchor="middle">Build event</text><text class="s" x="715" y="74" text-anchor="middle">local IP:port,</text><text class="s" x="715" y="88" text-anchor="middle">remote IP:port,</text><text class="s" x="715" y="102" text-anchor="middle">TCP, time</text>
+  <rect class="b bg" x="795" y="20" width="95" height="90" rx="8"/>
+  <text class="t" x="842" y="58" text-anchor="middle">Send</text><text class="s" x="842" y="78" text-anchor="middle">to the API</text>
+  <path class="ar" d="M140 65 H165"/><path class="ar" d="M305 65 H330"/><path class="ar" d="M470 65 H495"/><path class="ar" d="M635 65 H660"/><path class="ar" d="M770 65 H795"/>
+  <rect class="b bs" x="10" y="150" width="880" height="80" rx="8"/>
+  <text class="t" x="450" y="178" text-anchor="middle">If the backend is down, events wait in a queue and are retried with a growing delay and their original time.</text>
+  <text class="s" x="450" y="202" text-anchor="middle">One bad connection never stops the collector. Ctrl+C ends the run cleanly and prints a summary.</text>
+  <text class="s" x="450" y="220" text-anchor="middle">Events are never changed after sending: a domain learned later does not rewrite earlier events.</text>
+</svg>
+</div>
+<figcaption><b>Figure 4.</b> One look at the connection table, from raw Windows data to a stored event.</figcaption>
+</figure>
+
+<div class="callout amber"><b class="t">Important limits</b>
+<p><b>This collector sees only the computer it runs on.</b> It does not monitor other laptops, phones or users on the Wi-Fi, or traffic through a router. It is <b>TCP only</b>: UDP, including the QUIC protocol many browsers use for sites like YouTube, has no connection table, so those visits can be missing. It polls a snapshot, so very short connections can be missed. It provides <i>local TCP connection visibility</i>, not a complete browsing history.</p></div>
+
+<h3>4.4 How the domain name is chosen</h3>
+<p>A connection table contains only IP addresses. To attach a name, the collector looks in the Windows DNS cache and uses a name <b>only when exactly one cached name maps to that IP address</b>. Large services (CDNs, cloud front ends) share IP addresses between thousands of names, so a single name cannot be chosen honestly; the domain is then left empty (<span class="mono">null</span>) rather than guessed. The collector never performs reverse DNS lookups.</p>
+
+<!-- ============================================================ 5 -->
+<h2 id="s5"><span class="n">5</span>The backend (FastAPI)</h2>
+<p>The backend is a REST API written in Python. It receives HTTP requests, enforces who is allowed to do what, applies the business rules, and reads and writes MySQL.</p>
+
+<h3>5.1 Layered design</h3>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 270" class="fig" role="img" aria-label="Router to service to repository to SQLAlchemy to MySQL">
+  <rect class="b ba" x="10" y="40" width="150" height="130" rx="8"/>
+  <text class="t" x="85" y="68" text-anchor="middle">Router</text><text class="s" x="85" y="86" text-anchor="middle">api/*.py</text>
+  <text class="s" x="85" y="110" text-anchor="middle">receives HTTP,</text><text class="s" x="85" y="125" text-anchor="middle">checks login and</text><text class="s" x="85" y="140" text-anchor="middle">role, validates</text><text class="s" x="85" y="155" text-anchor="middle">with schemas</text>
+  <rect class="b bg" x="190" y="40" width="150" height="130" rx="8"/>
+  <text class="t" x="265" y="68" text-anchor="middle">Service</text><text class="s" x="265" y="86" text-anchor="middle">services/*.py</text>
+  <text class="s" x="265" y="110" text-anchor="middle">business rules:</text><text class="s" x="265" y="125" text-anchor="middle">30-second rule,</text><text class="s" x="265" y="140" text-anchor="middle">transactions,</text><text class="s" x="265" y="155" text-anchor="middle">last-admin guard</text>
+  <rect class="b bw" x="370" y="40" width="150" height="130" rx="8"/>
+  <text class="t" x="445" y="68" text-anchor="middle">Repository</text><text class="s" x="445" y="86" text-anchor="middle">repositories/*.py</text>
+  <text class="s" x="445" y="110" text-anchor="middle">the only place</text><text class="s" x="445" y="125" text-anchor="middle">that writes</text><text class="s" x="445" y="140" text-anchor="middle">queries: joins,</text><text class="s" x="445" y="155" text-anchor="middle">filters, counts</text>
+  <rect class="b" x="550" y="40" width="150" height="130" rx="8"/>
+  <text class="t" x="625" y="68" text-anchor="middle">SQLAlchemy</text><text class="s" x="625" y="86" text-anchor="middle">models/*.py</text>
+  <text class="s" x="625" y="110" text-anchor="middle">Python classes</text><text class="s" x="625" y="125" text-anchor="middle">that mirror the</text><text class="s" x="625" y="140" text-anchor="middle">tables, parameterized</text><text class="s" x="625" y="155" text-anchor="middle">SQL (no injection)</text>
+  <rect class="b bs" x="730" y="40" width="150" height="130" rx="8"/>
+  <text class="t" x="805" y="68" text-anchor="middle">MySQL</text><text class="s" x="805" y="86" text-anchor="middle">network_monitor</text>
+  <text class="s" x="805" y="115" text-anchor="middle">six tables,</text><text class="s" x="805" y="130" text-anchor="middle">keys, indexes</text>
+  <path class="ar" d="M160 105 H190"/><path class="ar" d="M340 105 H370"/><path class="ar" d="M520 105 H550"/><path class="ar" d="M700 105 H730"/>
+  <rect class="b bs" x="10" y="200" width="870" height="50" rx="8"/>
+  <text class="s" x="445" y="222" text-anchor="middle">Rule: a router never contains business logic, and a service never builds SQL by hand.</text>
+  <text class="s" x="445" y="240" text-anchor="middle">Each layer can be tested on its own, and a change in one layer does not ripple into the others.</text>
+</svg>
+</div>
+<figcaption><b>Figure 5.</b> Every request passes through the same four layers before reaching the database.</figcaption>
+</figure>
+
+<h3>5.2 Folder map of <span class="mono">backend/app</span></h3>
+<table>
+  <tr><th>Folder</th><th>Contents</th><th>Purpose</th></tr>
+  <tr><td class="mono">api/</td><td>auth, nodes, devices, destinations, history, dashboard, reports, users, collector, health</td><td>HTTP endpoints (routers)</td></tr>
+  <tr><td class="mono">services/</td><td>auth, collector (ingestion), activity, node, user, report, dashboard ...</td><td>Business rules</td></tr>
+  <tr><td class="mono">repositories/</td><td>one per table plus stats and filters</td><td>All database queries</td></tr>
+  <tr><td class="mono">models/</td><td>User, Node, Device, Destination, CollectorApiKey, NetworkHistory</td><td>ORM classes mirroring the schema</td></tr>
+  <tr><td class="mono">schemas/</td><td>request and response shapes (Pydantic)</td><td>Validation and API contracts</td></tr>
+  <tr><td class="mono">core/</td><td>config, security, dependencies, query parameters</td><td>Settings, hashing, tokens, auth checks, pagination</td></tr>
+  <tr><td class="mono">exceptions/</td><td>error classes and handlers</td><td>Consistent, safe error responses</td></tr>
+  <tr><td class="mono">db/</td><td>engine and session</td><td>The MySQL connection</td></tr>
+</table>
+
+<h3>5.3 Two ways to prove who you are</h3>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 360" class="fig" role="img" aria-label="User login with JWT and collector authentication with API key">
+  <text class="t" x="215" y="22" text-anchor="middle">People: email + password, then a token</text>
+  <rect class="b" x="20" y="36" width="390" height="46" rx="8"/><text class="s" x="215" y="64" text-anchor="middle">1  POST /api/auth/login with email and password</text>
+  <path class="ar" d="M215 82 V98"/>
+  <rect class="b" x="20" y="98" width="390" height="46" rx="8"/><text class="s" x="215" y="126" text-anchor="middle">2  bcrypt compares the password with the stored hash</text>
+  <path class="ar" d="M215 144 V160"/>
+  <rect class="b bg" x="20" y="160" width="390" height="46" rx="8"/><text class="s" x="215" y="188" text-anchor="middle">3  Server signs a short-lived JWT (HS256, 60 min)</text>
+  <path class="ar" d="M215 206 V222"/>
+  <rect class="b" x="20" y="222" width="390" height="46" rx="8"/><text class="s" x="215" y="250" text-anchor="middle">4  Browser sends Authorization: Bearer token</text>
+  <path class="ar" d="M215 268 V284"/>
+  <rect class="b ba" x="20" y="284" width="390" height="62" rx="8"/><text class="s" x="215" y="308" text-anchor="middle">5  Every request: the user is re-read from the DB,</text><text class="s" x="215" y="326" text-anchor="middle">so a disabled account or changed role applies at once</text>
+
+  <text class="t" x="680" y="22" text-anchor="middle">Collectors: one API key per node</text>
+  <rect class="b" x="470" y="36" width="420" height="46" rx="8"/><text class="s" x="680" y="64" text-anchor="middle">1  POST /api/collector/events with X-API-Key</text>
+  <path class="ar" d="M680 82 V98"/>
+  <rect class="b" x="470" y="98" width="420" height="46" rx="8"/><text class="s" x="680" y="126" text-anchor="middle">2  SHA-256 of the key is looked up in collector_api_keys</text>
+  <path class="ar" d="M680 144 V160"/>
+  <rect class="b bw" x="470" y="160" width="420" height="46" rx="8"/><text class="s" x="680" y="188" text-anchor="middle">3  Key must be ACTIVE; the row names the one node</text>
+  <path class="ar" d="M680 206 V222"/>
+  <rect class="b bg" x="470" y="222" width="420" height="46" rx="8"/><text class="s" x="680" y="250" text-anchor="middle">4  The event is stored for THAT node only</text>
+  <rect class="b bs" x="470" y="284" width="420" height="62" rx="8"/><text class="s" x="680" y="308" text-anchor="middle">Only the hash is stored, so a database leak does not</text><text class="s" x="680" y="326" text-anchor="middle">reveal the keys. One message covers missing/unknown/revoked.</text>
+</svg>
+</div>
+<figcaption><b>Figure 6.</b> Two separate authentication paths. Roles (ADMIN, ANALYST) are checked on the server for every protected route; hiding a button in the browser is never the only protection.</figcaption>
+</figure>
+
+<h3>5.4 Validation and error handling</h3>
+<ul>
+  <li><b>Pydantic schemas</b> check every incoming value (types, lengths, IP address format, port range 1 to 65535, allowed protocol values). Unknown fields are rejected.</li>
+  <li><b>Pagination is done by the database</b> (<span class="mono">page</span>, <span class="mono">pageSize</span> up to 100), so the browser never receives thousands of rows at once.</li>
+  <li><b>HTTP status codes</b> are meaningful: 200, 201, 204, 400, 401, 403, 404, 409, 422, 503. A 409 means a conflict such as a duplicate node code or an attempt to disable the last administrator.</li>
+  <li><b>Errors never leak internals.</b> The server logs details but returns generic messages, and it does not echo rejected input back (it could be a password).</li>
+</ul>
+
+<h3>5.5 The 32 API endpoints</h3>
+<table>
+  <tr><th>Area</th><th>Endpoints</th><th>Who</th></tr>
+  <tr><td>Health</td><td class="mono">GET /api/health · GET /api/health/db</td><td>public · signed in</td></tr>
+  <tr><td>Auth</td><td class="mono">POST /api/auth/login · POST /api/auth/logout · GET /api/auth/me</td><td>public (login) · signed in</td></tr>
+  <tr><td>Dashboard</td><td class="mono">GET /api/dashboard/summary · /activity · /top-destinations · /top-devices</td><td>signed in</td></tr>
+  <tr><td>Nodes</td><td class="mono">GET /api/nodes · GET /api/nodes/{id} · POST /api/nodes · PUT /api/nodes/{id} · PATCH /api/nodes/{id}/status</td><td>read: signed in · write: <span class="pill admin">ADMIN</span></td></tr>
+  <tr><td>Devices</td><td class="mono">GET /api/devices · /{id} · /{id}/history</td><td>signed in</td></tr>
+  <tr><td>Destinations</td><td class="mono">GET /api/destinations · /{id} · /{id}/history</td><td>signed in</td></tr>
+  <tr><td>History</td><td class="mono">GET /api/history · GET /api/history/{id}</td><td>signed in</td></tr>
+  <tr><td>Reports</td><td class="mono">GET /api/reports/top-destinations · /top-devices · /activity-by-node · /activity-over-time</td><td>signed in</td></tr>
+  <tr><td>Users</td><td class="mono">GET /api/users · GET /{id} · POST · PUT /{id} · PATCH /{id}/status</td><td><span class="pill admin">ADMIN</span></td></tr>
+  <tr><td>Collector</td><td class="mono">POST /api/collector/events</td><td><span class="pill key">API key</span></td></tr>
+</table>
+<p>Interactive documentation for all of these is generated automatically by FastAPI at <span class="mono">/docs</span> (it can be switched off for a real deployment with <span class="mono">ENABLE_API_DOCS=false</span>).</p>
+
+<!-- ============================================================ 6 -->
+<h2 id="s6"><span class="n">6</span>Ingestion and the 30-second rule</h2>
+<p>A browser loading one page can open many connections to the same server within a few seconds. Storing every one would fill the history with noise. The project's special rule fixes that:</p>
+<div class="callout"><b class="t">The 30-second rule</b>
+<p><b>Same device + same destination + another event within 30 seconds = duplicate, and a duplicate is not stored.</b> After 30 seconds the same device reaching the same destination is stored again, because that is a new visit.</p></div>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 250" class="fig" role="img" aria-label="Timeline showing which of seven attempts are stored">
+  <path d="M40 150 H865" stroke="#334155" stroke-width="2"/>
+  <g stroke="#94a3b8" stroke-width="1">
+    <path d="M50 146 V154"/><path d="M150 146 V154"/><path d="M250 146 V154"/><path d="M350 146 V154"/><path d="M450 146 V154"/><path d="M550 146 V154"/><path d="M650 146 V154"/><path d="M750 146 V154"/><path d="M850 146 V154"/>
+  </g>
+  <g class="tiny" text-anchor="middle">
+    <text x="50" y="172">0 s</text><text x="150" y="172">10</text><text x="250" y="172">20</text><text x="350" y="172">30</text><text x="450" y="172">40</text><text x="550" y="172">50</text><text x="650" y="172">60</text><text x="750" y="172">70</text><text x="850" y="172">80 s</text>
+  </g>
+  <path d="M50 100 H350" stroke="#2563eb" stroke-width="3"/><path d="M50 94 V106 M350 94 V106" stroke="#2563eb" stroke-width="3"/>
+  <text class="lbl" x="200" y="86" text-anchor="middle">30 s window after the stored event at 0 s</text>
+  <path d="M450 100 H750" stroke="#2563eb" stroke-width="3"/><path d="M450 94 V106 M750 94 V106" stroke="#2563eb" stroke-width="3"/>
+  <text class="lbl" x="600" y="86" text-anchor="middle">30 s window after the stored event at 40 s</text>
+
+  <circle cx="50" cy="150" r="10" class="ok"/>
+  <circle cx="100" cy="150" r="9" class="dupe"/><circle cx="170" cy="150" r="9" class="dupe"/><circle cx="300" cy="150" r="9" class="dupe"/><circle cx="350" cy="150" r="9" class="dupe"/>
+  <circle cx="450" cy="150" r="10" class="ok"/><circle cx="760" cy="150" r="10" class="ok"/>
+  <g class="lbl" text-anchor="middle">
+    <text x="50" y="128">0 s</text><text x="100" y="128">5</text><text x="170" y="128">12</text><text x="300" y="128">25</text><text x="350" y="128">30</text><text x="450" y="128">40</text><text x="760" y="128">71</text>
+  </g>
+  <g class="lbl"><circle cx="270" cy="212" r="8" class="ok"/><text x="286" y="216">STORED</text><circle cx="400" cy="212" r="8" class="dupe"/><text x="416" y="216">DUPLICATE (not stored)</text></g>
+  <text class="s" x="450" y="240" text-anchor="middle">Exactly 30 s still counts as a duplicate. The event at 71 s is 31 s after the stored one at 40 s, so it is stored.</text>
+  <text class="t" x="450" y="30" text-anchor="middle">PC-LAB-A-001 reaches the same destination seven times</text>
+</svg>
+</div>
+<figcaption><b>Figure 7.</b> The classroom demonstration (<span class="mono">python collector.py demo-dedup</span>). Only the green events (0 s, 40 s, 71 s) reach the database.</figcaption>
+</figure>
+
+<h3>6.1 Why it lives in the backend, not the database</h3>
+<ul>
+  <li>It cannot be a <span class="mono">UNIQUE(device_id, destination_id)</span> constraint: that would forbid the same device ever reaching the same destination twice, even a month later.</li>
+  <li>It cannot live in the frontend or collector alone: any client could skip it. The backend is the single place all events pass through, so the rule is enforced once, for everyone.</li>
+  <li>Ports and protocol are <b>not</b> part of the rule. Two connections from one device to one server within 30 seconds are one event, whatever their ports are.</li>
+</ul>
+
+<h3>6.2 Making it safe when events arrive at the same time</h3>
+<p>Two events from the same device could arrive at the same moment and both pass the duplicate check. To prevent that, the service reads with <span class="mono">SELECT ... FOR UPDATE</span> (a <i>locking read</i>) and always takes the locks in the same order: <b>node, then device, then destination</b>. A fixed order means two transactions can never wait on each other in a circle (a deadlock). If MySQL still reports a lock timeout, the API answers 503 and the collector simply resends, which is safe because duplicates are detected.</p>
+<p>The window is checked in both directions (30 seconds before and after), so an event that arrives late and out of order is also handled correctly.</p>
+
+<!-- ============================================================ 7 -->
+<h2 id="s7"><span class="n">7</span>The database</h2>
+<p>The database is the heart of the project. It is a MySQL 8+ (running MySQL 9.7) database named <span class="mono">network_monitor</span> with <b>exactly six application tables</b>, all InnoDB, character set <span class="mono">utf8mb4</span>, with <span class="mono">BIGINT UNSIGNED AUTO_INCREMENT</span> primary keys and <span class="mono">DATETIME</span> timestamps.</p>
+
+<h3>7.1 Why MySQL and a relational design</h3>
+<ul>
+  <li>The data is naturally <b>relational</b>: devices belong to nodes, events refer to devices and destinations. Foreign keys let the database itself guarantee those links are valid.</li>
+  <li>Questions such as "top destinations", "devices per node" or "activity per day" are joins and aggregates, which SQL does very well.</li>
+  <li><b>Transactions</b> (all-or-nothing) are needed when one event updates four tables at once.</li>
+  <li>The schema is created from a plain SQL file (<span class="mono">schema.sql</span>), so it is visible and explainable; the Python models mirror it, rather than generating it.</li>
+</ul>
+
+<h3>7.2 The entity-relationship diagram</h3>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 1000 800" class="fig" role="img" aria-label="Entity relationship diagram of the six tables">
+<path d="M280 110 H375" class="rel"/><text x="284" y="103" class="kd">1</text><text x="358" y="103" class="kd">N</text><text x="327" y="126" text-anchor="middle" class="relt">has</text>
+<path d="M155 258 V330" class="rel"/><text x="161" y="276" class="kd">1</text><text x="161" y="324" class="kd">N</text><text x="166" y="304" class="relt">is reported to by</text>
+<path d="M280 230 C335 230 330 430 375 430" class="rel"/><text x="284" y="224" class="kd">1</text><text x="352" y="424" class="kd">N</text><text x="334" y="340" class="relt">observes</text>
+<path d="M500 296 V360" class="rel"/><text x="506" y="312" class="kd">1</text><text x="506" y="354" class="kd">N</text><text x="520" y="334" class="relt">generates</text>
+<path d="M845 239 C845 340 700 440 625 440" class="rel"/><text x="851" y="258" class="kd">1</text><text x="632" y="434" class="kd">N</text><text x="800" y="330" class="relt">is reached by</text>
+<text x="500" y="462" text-anchor="middle" class="relt">composite FK (node_id, device_id)</text>
+<rect x="30" y="30" width="250" height="228" rx="8" class="tb"/>
+<path d="M30 60 H280" class="tl"/>
+<text x="42" y="50" class="tn">nodes</text>
+<text x="42" y="74" class="tc">node_id</text>
+<text x="268" y="74" text-anchor="end" class="tag PK">PK</text>
+<text x="42" y="93" class="tc">node_code</text>
+<text x="268" y="93" text-anchor="end" class="tag UQ">UQ</text>
+<text x="42" y="112" class="tc">node_name</text>
+<text x="42" y="131" class="tc">ip_address</text>
+<text x="42" y="150" class="tc">location</text>
+<text x="42" y="169" class="tc">description</text>
+<text x="42" y="188" class="tc">status</text>
+<text x="42" y="207" class="tc">registered_at</text>
+<text x="42" y="226" class="tc">last_seen</text>
+<text x="42" y="245" class="tc">updated_at</text>
+<rect x="375" y="30" width="250" height="266" rx="8" class="tb"/>
+<path d="M375 60 H625" class="tl"/>
+<text x="387" y="50" class="tn">devices</text>
+<text x="387" y="74" class="tc">device_id</text>
+<text x="613" y="74" text-anchor="end" class="tag PK">PK</text>
+<text x="387" y="93" class="tc">node_id</text>
+<text x="613" y="93" text-anchor="end" class="tag FK">FK</text>
+<text x="387" y="112" class="tc">device_identifier</text>
+<text x="613" y="112" text-anchor="end" class="tag UQ">UQ</text>
+<text x="387" y="131" class="tc">device_name</text>
+<text x="387" y="150" class="tc">ip_address</text>
+<text x="387" y="169" class="tc">mac_address</text>
+<text x="387" y="188" class="tc">hostname</text>
+<text x="387" y="207" class="tc">status</text>
+<text x="387" y="226" class="tc">first_seen</text>
+<text x="387" y="245" class="tc">last_seen</text>
+<text x="387" y="264" class="tc">created_at</text>
+<text x="387" y="283" class="tc">updated_at</text>
+<rect x="720" y="30" width="250" height="209" rx="8" class="tb"/>
+<path d="M720 60 H970" class="tl"/>
+<text x="732" y="50" class="tn">destinations</text>
+<text x="732" y="74" class="tc">destination_id</text>
+<text x="958" y="74" text-anchor="end" class="tag PK">PK</text>
+<text x="732" y="93" class="tc">ip_address</text>
+<text x="958" y="93" text-anchor="end" class="tag UQ">UQ</text>
+<text x="732" y="112" class="tc">domain</text>
+<text x="958" y="112" text-anchor="end" class="tag UQ">UQ</text>
+<text x="732" y="131" class="tc">domain_key</text>
+<text x="958" y="131" text-anchor="end" class="tag GEN">GEN</text>
+<text x="732" y="150" class="tc">category</text>
+<text x="732" y="169" class="tc">first_seen</text>
+<text x="732" y="188" class="tc">last_seen</text>
+<text x="732" y="207" class="tc">created_at</text>
+<text x="732" y="226" class="tc">updated_at</text>
+<rect x="30" y="330" width="250" height="190" rx="8" class="tb"/>
+<path d="M30 360 H280" class="tl"/>
+<text x="42" y="350" class="tn">collector_api_keys</text>
+<text x="42" y="374" class="tc">api_key_id</text>
+<text x="268" y="374" text-anchor="end" class="tag PK">PK</text>
+<text x="42" y="393" class="tc">node_id</text>
+<text x="268" y="393" text-anchor="end" class="tag FK">FK</text>
+<text x="42" y="412" class="tc">key_name</text>
+<text x="42" y="431" class="tc">key_hash</text>
+<text x="268" y="431" text-anchor="end" class="tag UQ">UQ</text>
+<text x="42" y="450" class="tc">status</text>
+<text x="42" y="469" class="tc">created_at</text>
+<text x="42" y="488" class="tc">last_used_at</text>
+<text x="42" y="507" class="tc">revoked_at</text>
+<rect x="375" y="360" width="250" height="209" rx="8" class="tb tba"/>
+<path d="M375 390 H625" class="tl"/>
+<text x="387" y="380" class="tn">network_history</text>
+<text x="387" y="404" class="tc">history_id</text>
+<text x="613" y="404" text-anchor="end" class="tag PK">PK</text>
+<text x="387" y="423" class="tc">device_id</text>
+<text x="613" y="423" text-anchor="end" class="tag FK">FK</text>
+<text x="387" y="442" class="tc">node_id</text>
+<text x="613" y="442" text-anchor="end" class="tag FK">FK</text>
+<text x="387" y="461" class="tc">destination_id</text>
+<text x="613" y="461" text-anchor="end" class="tag FK">FK</text>
+<text x="387" y="480" class="tc">observed_at</text>
+<text x="387" y="499" class="tc">protocol</text>
+<text x="387" y="518" class="tc">source_port</text>
+<text x="387" y="537" class="tc">destination_port</text>
+<text x="387" y="556" class="tc">created_at</text>
+<rect x="30" y="570" width="250" height="209" rx="8" class="tb"/>
+<path d="M30 600 H280" class="tl"/>
+<text x="42" y="590" class="tn">users</text>
+<text x="42" y="614" class="tc">user_id</text>
+<text x="268" y="614" text-anchor="end" class="tag PK">PK</text>
+<text x="42" y="633" class="tc">name</text>
+<text x="42" y="652" class="tc">email</text>
+<text x="268" y="652" text-anchor="end" class="tag UQ">UQ</text>
+<text x="42" y="671" class="tc">password_hash</text>
+<text x="42" y="690" class="tc">role</text>
+<text x="42" y="709" class="tc">status</text>
+<text x="42" y="728" class="tc">created_at</text>
+<text x="42" y="747" class="tc">updated_at</text>
+<text x="42" y="766" class="tc">last_login</text>
+<text x="320" y="725" class="relt">users has no foreign keys: it is used for authentication only.</text>
+<g transform="translate(720 520)"><rect width="250" height="150" rx="8" class="tb"/><text x="12" y="22" class="tn">Legend</text><text x="12" y="46" class="tag PK">PK</text><text x="44" y="46" class="tc">primary key</text><text x="12" y="66" class="tag FK">FK</text><text x="44" y="66" class="tc">foreign key</text><text x="12" y="86" class="tag UQ">UQ</text><text x="44" y="86" class="tc">unique (alone or in a combination)</text><text x="12" y="106" class="tag GEN">GEN</text><text x="44" y="106" class="tc">generated column</text><text x="12" y="130" class="kd">1</text><text x="26" y="130" class="tc">one</text><text x="70" y="130" class="kd">N</text><text x="84" y="130" class="tc">many</text></g>
+</svg>
+</div>
+<figcaption><b>Figure 8.</b> The six tables and how they relate. <span class="mono">network_history</span> (highlighted) is the central table: each row ties one device, one node and one destination to one moment in time.</figcaption>
+</figure>
+
+<table>
+  <tr><th>Parent</th><th>Child</th><th class="c">Type</th><th>Meaning</th></tr>
+  <tr><td class="mono">nodes</td><td class="mono">devices</td><td class="c">1 : N</td><td>A node has many devices; a device belongs to exactly one node.</td></tr>
+  <tr><td class="mono">nodes</td><td class="mono">collector_api_keys</td><td class="c">1 : N</td><td>A node can have several keys (for example while rotating); a key belongs to one node.</td></tr>
+  <tr><td class="mono">nodes</td><td class="mono">network_history</td><td class="c">1 : N</td><td>Every event records which observation point saw it.</td></tr>
+  <tr><td class="mono">devices</td><td class="mono">network_history</td><td class="c">1 : N</td><td>A device generates many events.</td></tr>
+  <tr><td class="mono">destinations</td><td class="mono">network_history</td><td class="c">1 : N</td><td>A destination is reached by many events (from many devices).</td></tr>
+  <tr><td class="mono">users</td><td colspan="3">no relationships: accounts are used for sign-in and permissions only.</td></tr>
+</table>
+
+<h3>7.3 Table by table</h3>
+<p>For each table: what it stores, why it exists, how the application uses it, and the design decisions behind it.</p>
+
+<!-- ---------------------------------------------------------------- users -->
+<div class="card" style="margin:16px 0">
+<h4>1. <span class="mono">users</span> - who may sign in</h4>
+<p><b>Stores</b> the accounts of the people who use the dashboard.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">user_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key, auto-increment</td></tr>
+  <tr><td class="mono">name</td><td class="mono">VARCHAR(100)</td><td>Display name</td></tr>
+  <tr><td class="mono">email</td><td class="mono">VARCHAR(255)</td><td><b>UNIQUE</b>; the login name; stored lower-case</td></tr>
+  <tr><td class="mono">password_hash</td><td class="mono">VARCHAR(255)</td><td>bcrypt hash, never the password itself</td></tr>
+  <tr><td class="mono">role</td><td class="mono">ENUM('ADMIN','ANALYST')</td><td>Default ANALYST; decides what the account may do</td></tr>
+  <tr><td class="mono">status</td><td class="mono">ENUM('ACTIVE','DISABLED')</td><td>Disabled accounts cannot sign in</td></tr>
+  <tr><td class="mono">created_at, updated_at, last_login</td><td class="mono">DATETIME</td><td><span class="mono">updated_at</span> refreshes automatically; <span class="mono">last_login</span> is NULL until the first login</td></tr>
+</table>
+<p><b>How it is used.</b> At login the backend finds the row by <span class="mono">email</span> (the unique index makes this one lookup), compares the password with <span class="mono">password_hash</span> using bcrypt, and records <span class="mono">last_login</span>. On every later request the user row is read again to check <span class="mono">status</span> and <span class="mono">role</span>, so disabling an account or changing a role takes effect immediately. The Users page (admin only) creates, edits and disables rows.</p>
+<p><b>Why it looks like this.</b> Users are people, not network data, so there is no foreign key to the monitoring tables. Accounts are <i>disabled, not deleted</i>, so history of who did what is not lost, and the application refuses to disable or demote the <b>last active administrator</b> so nobody can lock everyone out. The <span class="mono">ENUM</span> columns let MySQL reject any role or status that is not on the list.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- nodes -->
+<div class="card" style="margin:16px 0">
+<h4>2. <span class="mono">nodes</span> - authorized observation points</h4>
+<p><b>Stores</b> each place where monitoring is authorized: a computer lab, the library, an office, or "this PC".</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">node_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key</td></tr>
+  <tr><td class="mono">node_code</td><td class="mono">VARCHAR(50)</td><td><b>UNIQUE</b> short code such as <span class="mono">LAB-A</span></td></tr>
+  <tr><td class="mono">node_name, location</td><td class="mono">VARCHAR(100 / 150)</td><td>Human-readable name and place</td></tr>
+  <tr><td class="mono">ip_address</td><td class="mono">VARCHAR(45)</td><td>Address of the observation point; 45 characters fit the longest IPv6 text form</td></tr>
+  <tr><td class="mono">description</td><td class="mono">VARCHAR(500) NULL</td><td>Optional</td></tr>
+  <tr><td class="mono">status</td><td class="mono">ENUM('ACTIVE','INACTIVE','OFFLINE')</td><td>Index <span class="mono">idx_nodes_status</span></td></tr>
+  <tr><td class="mono">registered_at, last_seen, updated_at</td><td class="mono">DATETIME</td><td><span class="mono">last_seen</span> indexed; NULL until the node reports</td></tr>
+</table>
+<p><b>How it is used.</b> The Nodes page (admin) adds, edits and disables nodes. When an event arrives, the node found through the API key is <b>locked</b>; if its status is <span class="mono">INACTIVE</span> the event is refused with 403, and otherwise its <span class="mono">last_seen</span> moves forward. The dashboard's "Active nodes" figure counts rows with status ACTIVE, and the reports group activity by node.</p>
+<p><b>Why it looks like this.</b> A node is the <i>parent</i> of devices and keys, which gives every event a clear origin. Nodes are never deleted (history refers to them); they are set to <span class="mono">INACTIVE</span> instead, which also acts as an off switch for a collector.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- devices -->
+<div class="card" style="margin:16px 0">
+<h4>3. <span class="mono">devices</span> - the machines being observed</h4>
+<p><b>Stores</b> one row per logical device seen by a node.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">device_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key</td></tr>
+  <tr><td class="mono">node_id</td><td class="mono">BIGINT UNSIGNED</td><td><b>FK</b> to <span class="mono">nodes</span>, ON DELETE RESTRICT, ON UPDATE CASCADE</td></tr>
+  <tr><td class="mono">device_identifier</td><td class="mono">VARCHAR(100)</td><td>The <b>logical identity</b> (for example <span class="mono">PC-LAB-A-001</span>), unique within a node</td></tr>
+  <tr><td class="mono">device_name, hostname, mac_address</td><td class="mono">VARCHAR NULL</td><td>Optional descriptive details; shown as a dash when unknown</td></tr>
+  <tr><td class="mono">ip_address</td><td class="mono">VARCHAR(45)</td><td>Current address; can change; indexed</td></tr>
+  <tr><td class="mono">status</td><td class="mono">ENUM('ACTIVE','INACTIVE','UNKNOWN')</td><td>Default UNKNOWN</td></tr>
+  <tr><td class="mono">first_seen, last_seen, created_at, updated_at</td><td class="mono">DATETIME</td><td><span class="mono">last_seen</span> is indexed</td></tr>
+</table>
+<p><b>Constraints.</b> <span class="mono">UNIQUE (node_id, device_identifier)</span> means a device name cannot repeat inside one node. <span class="mono">UNIQUE (node_id, device_id)</span> looks redundant (device_id is already unique) but is required: it is the target of the composite foreign key from <span class="mono">network_history</span> (Section 7.4).</p>
+<p><b>How it is used.</b> Devices are created <i>automatically</i> by the first event that mentions them: the service looks for <span class="mono">node_id + device_identifier</span> and inserts a row if none exists. Later events update <span class="mono">last_seen</span> and the current IP. The Devices page lists them with search (by name, IP, hostname) and filters (node, status); the device detail page shows the history of that one device.</p>
+<p><b>Why it looks like this.</b> The identity is the <i>identifier</i>, not the IP address, because IPs change (DHCP). If a laptop gets a new address, it stays the same device with one continuous history rather than becoming a stranger.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- destinations -->
+<div class="card" style="margin:16px 0">
+<h4>4. <span class="mono">destinations</span> - where traffic went</h4>
+<p><b>Stores</b> each distinct place that was reached, once, no matter how many devices or events refer to it.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">destination_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key</td></tr>
+  <tr><td class="mono">ip_address</td><td class="mono">VARCHAR(45)</td><td>Destination IP (IPv4 or IPv6)</td></tr>
+  <tr><td class="mono">domain</td><td class="mono">VARCHAR(255) NULL</td><td>Name when known; NULL when no name was observed; indexed</td></tr>
+  <tr><td class="mono">domain_key</td><td class="mono">VARCHAR(255) GENERATED</td><td><span class="mono">COALESCE(domain, '')</span>, STORED. Internal helper, never shown to users</td></tr>
+  <tr><td class="mono">category</td><td class="mono">ENUM(SEARCH, SOCIAL, DEVELOPMENT, EDUCATION, VIDEO, CLOUD, OTHER, UNKNOWN)</td><td>Descriptive label; default UNKNOWN; indexed</td></tr>
+  <tr><td class="mono">first_seen, last_seen, created_at, updated_at</td><td class="mono">DATETIME</td><td><span class="mono">last_seen</span> indexed</td></tr>
+</table>
+<p><b>The NULL problem and the generated column.</b> The identity of a destination is <span class="mono">ip_address + domain</span>, and <span class="mono">domain</span> may be NULL. In MySQL a UNIQUE index allows <i>many</i> rows with NULL, so <span class="mono">UNIQUE(ip_address, domain)</span> would allow <span class="mono">(203.0.113.50, NULL)</span> to be inserted again and again. The generated column turns NULL into an empty string, and <span class="mono">UNIQUE (ip_address, domain_key)</span> then works for every case while <span class="mono">domain</span> itself stays truly NULL.</p>
+<p><b>How it is used.</b> On each event the service looks up <span class="mono">ip_address</span> + <span class="mono">domain_key</span> and reuses the row or creates it. It powers the Destinations page, the destination investigation page (total events, unique devices, nodes that saw it, devices that accessed it), the "top destinations" chart and the category breakdown.</p>
+<p><b>Why it looks like this.</b> Storing each destination once avoids repeating the same name and IP in millions of history rows. The <span class="mono">category</span> is application metadata for readability and is explicitly <i>not</i> a security verdict.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- keys -->
+<div class="card" style="margin:16px 0">
+<h4>5. <span class="mono">collector_api_keys</span> - how collectors prove who they are</h4>
+<p><b>Stores</b> the credentials that collectors use, one or more per node.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">api_key_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key</td></tr>
+  <tr><td class="mono">node_id</td><td class="mono">BIGINT UNSIGNED</td><td><b>FK</b> to <span class="mono">nodes</span>, RESTRICT; the node this key speaks for</td></tr>
+  <tr><td class="mono">key_name</td><td class="mono">VARCHAR(100)</td><td>A label such as "local collector"</td></tr>
+  <tr><td class="mono">key_hash</td><td class="mono">VARCHAR(255)</td><td><b>UNIQUE</b>; SHA-256 of the key. The key itself is never stored</td></tr>
+  <tr><td class="mono">status</td><td class="mono">ENUM('ACTIVE','REVOKED')</td><td>Revoking = changing this value</td></tr>
+  <tr><td class="mono">created_at, last_used_at, revoked_at</td><td class="mono">DATETIME</td><td><span class="mono">last_used_at</span> is updated on each authenticated use</td></tr>
+</table>
+<p><b>How it is used.</b> For each event the backend hashes the <span class="mono">X-API-Key</span> header and finds the row through the unique index on <span class="mono">key_hash</span>. If the row exists and is ACTIVE, <span class="mono">node_id</span> tells the backend which node the event belongs to. A helper script (<span class="mono">backend/create_collector_key.py</span>) creates a node and key and prints the key <b>once</b>.</p>
+<p><b>Why it looks like this.</b> A separate table lets a node have several keys (rotation) and lets a key be revoked without deleting anything. Hashing means a leaked database does not leak working keys. A fast SHA-256 is appropriate here (unlike for passwords) because keys are long random secrets, and a fast, repeatable hash is what allows a lookup by hash. The key is bound to the node, which is why a collector can never write events for another node.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- history -->
+<div class="card" style="margin:16px 0; border-color:#2563eb">
+<h4>6. <span class="mono">network_history</span> - the events (the central table)</h4>
+<p><b>Stores</b> one row per accepted event: <i>this device, seen by this node, reached this destination, at this time</i>.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+  <tr><td class="mono">history_id</td><td class="mono">BIGINT UNSIGNED</td><td>Primary key</td></tr>
+  <tr><td class="mono">device_id</td><td class="mono">BIGINT UNSIGNED</td><td><b>FK</b> to <span class="mono">devices</span></td></tr>
+  <tr><td class="mono">node_id</td><td class="mono">BIGINT UNSIGNED</td><td><b>FK</b> to <span class="mono">nodes</span></td></tr>
+  <tr><td class="mono">destination_id</td><td class="mono">BIGINT UNSIGNED</td><td><b>FK</b> to <span class="mono">destinations</span></td></tr>
+  <tr><td class="mono">observed_at</td><td class="mono">DATETIME NOT NULL</td><td>When the collector saw it</td></tr>
+  <tr><td class="mono">protocol</td><td class="mono">ENUM('TCP','UDP') NULL</td><td>Optional connection detail</td></tr>
+  <tr><td class="mono">source_port, destination_port</td><td class="mono">SMALLINT UNSIGNED NULL</td><td>Optional; 0 to 65535 fits in two bytes</td></tr>
+  <tr><td class="mono">created_at</td><td class="mono">DATETIME</td><td>When the row was inserted</td></tr>
+</table>
+<p><b>How it is used.</b> Everything the dashboard shows is computed from this table: the recent-activity table, the activity charts, the history search page, device and destination histories, node activity and all four reports. The duplicate check queries it by device and destination within a time window.</p>
+<p><b>Why it looks like this.</b> It is a "tall and narrow" table of ids and a time, so adding millions of rows stays cheap. It deliberately stores <b>no names or addresses</b>: those are reached through joins (Section 7.6). Protocol and ports describe <i>this one connection</i> (every connection has its own ephemeral source port), so they belong on the event row, not on devices or destinations. They are nullable because not every collector can observe them; older rows simply show a dash.</p>
+</div>
+
+<h3>7.4 Foreign keys, and the composite key that prevents impossible events</h3>
+<p><span class="mono">network_history</span> has four foreign keys, all <span class="mono">ON UPDATE CASCADE ON DELETE RESTRICT</span>:</p>
+<ol>
+  <li><span class="mono">device_id → devices(device_id)</span></li>
+  <li><span class="mono">node_id → nodes(node_id)</span></li>
+  <li><span class="mono">destination_id → destinations(destination_id)</span></li>
+  <li><b><span class="mono">(node_id, device_id) → devices(node_id, device_id)</span></b> (composite)</li>
+</ol>
+<p>The first three only prove each id exists. They would still allow a contradiction: an event saying <i>device 7 was seen by node 2</i> when device 7 actually belongs to node 1. The composite key closes that gap, because MySQL must find a <span class="mono">devices</span> row with <b>that exact node and device together</b>. This is why <span class="mono">devices</span> carries the extra <span class="mono">UNIQUE (node_id, device_id)</span>: a foreign key needs a unique target.</p>
+<table class="sample">
+  <tr><th>Attempted event</th><th>Result</th></tr>
+  <tr><td>device_id = 7, node_id = 1  (device 7 belongs to node 1)</td><td>accepted</td></tr>
+  <tr><td>device_id = 7, node_id = 2  (device 7 does not belong to node 2)</td><td>rejected by MySQL: foreign key violation</td></tr>
+</table>
+<p>The application also checks this, but the database enforces it even if some future code forgets to.</p>
+
+<h3>7.5 Indexes: what each one is for</h3>
+<p>An index is a sorted lookup structure that lets MySQL jump to rows instead of reading the whole table. Indexes make reads faster but writes slightly slower, so only indexes that serve a real query were added.</p>
+<table>
+  <tr><th>Index</th><th>Table</th><th>Query it speeds up</th></tr>
+  <tr><td class="mono">(device_id, observed_at)</td><td class="mono">network_history</td><td>A device's history, newest first; the 30-second duplicate check</td></tr>
+  <tr><td class="mono">(node_id, observed_at)</td><td class="mono">network_history</td><td>Node detail page, activity by node</td></tr>
+  <tr><td class="mono">(destination_id, observed_at)</td><td class="mono">network_history</td><td>Destination investigation, "who reached this"</td></tr>
+  <tr><td class="mono">(observed_at)</td><td class="mono">network_history</td><td>Dashboard counts, date filters, reports over time</td></tr>
+  <tr><td class="mono">UNIQUE (node_id, device_identifier)</td><td class="mono">devices</td><td>Finding the device for each incoming event</td></tr>
+  <tr><td class="mono">UNIQUE (ip_address, domain_key)</td><td class="mono">destinations</td><td>Finding the destination for each incoming event</td></tr>
+  <tr><td class="mono">UNIQUE (key_hash)</td><td class="mono">collector_api_keys</td><td>Authenticating a collector in one lookup</td></tr>
+  <tr><td class="mono">UNIQUE (email)</td><td class="mono">users</td><td>Login lookup</td></tr>
+  <tr><td class="mono">ip_address, status, last_seen</td><td class="mono">devices</td><td>Search by IP, filter by status, sort by recent</td></tr>
+  <tr><td class="mono">domain, category, last_seen</td><td class="mono">destinations</td><td>Search by domain, filter by category</td></tr>
+  <tr><td class="mono">status, last_seen</td><td class="mono">nodes</td><td>Counting active nodes, finding silent ones</td></tr>
+</table>
+
+<h3>7.6 Normalization: why the history table holds only ids</h3>
+<p>The schema is designed to about <b>Third Normal Form (3NF)</b>: every fact is stored in exactly one place.</p>
+<ul>
+  <li><b>1NF:</b> every column holds a single value; there are no lists inside a cell.</li>
+  <li><b>2NF:</b> every table has a single-column primary key, so no column can depend on only part of a key.</li>
+  <li><b>3NF:</b> a column depends on the key and nothing but the key. For example the node's name is not copied into <span class="mono">devices</span> or <span class="mono">network_history</span>, because it depends on the node, not on the device or the event.</li>
+</ul>
+<p><b>What it looks like for one event.</b> Suppose <span class="mono">PC-LAB-A-001</span> reaches <span class="mono">github.com</span>. The event itself is one small row; the descriptive details live in their own tables and are joined when needed (example values):</p>
+<table class="sample">
+  <tr><th colspan="8">network_history</th></tr>
+  <tr><th>history_id</th><th>device_id</th><th>node_id</th><th>destination_id</th><th>observed_at</th><th>protocol</th><th>source_port</th><th>destination_port</th></tr>
+  <tr><td>1749</td><td>3</td><td>1</td><td>2</td><td>2026-09-21 20:18:57</td><td>TCP</td><td>53011</td><td>443</td></tr>
+</table>
+<div class="grid3">
+  <table class="sample"><tr><th colspan="2">devices (id 3)</th></tr><tr><td>device_identifier</td><td>PC-LAB-A-001</td></tr><tr><td>ip_address</td><td>192.168.10.21</td></tr><tr><td>node_id</td><td>1</td></tr></table>
+  <table class="sample"><tr><th colspan="2">nodes (id 1)</th></tr><tr><td>node_code</td><td>LAB-A</td></tr><tr><td>node_name</td><td>Computer Lab A</td></tr><tr><td>status</td><td>ACTIVE</td></tr></table>
+  <table class="sample"><tr><th colspan="2">destinations (id 2)</th></tr><tr><td>ip_address</td><td>203.0.113.20</td></tr><tr><td>domain</td><td>github.com</td></tr><tr><td>category</td><td>DEVELOPMENT</td></tr></table>
+</div>
+<p>If the lab is renamed, one <span class="mono">UPDATE</span> on <span class="mono">nodes</span> changes every past and future event's display, instead of millions of rows.</p>
+<div class="callout amber"><b class="t">A deliberate exception</b>
+<p><span class="mono">last_seen</span> on nodes, devices and destinations is technically derivable from <span class="mono">MAX(observed_at)</span> in the history. It is stored anyway (and updated in the same transaction as the event) so that lists such as "devices, most recently active first" do not need an expensive aggregate over the whole history. This is a conscious, documented trade-off of a little redundancy for speed.</p></div>
+
+<h3>7.7 Deletion policy: history is never lost by accident</h3>
+<p>Every foreign key uses <span class="mono">ON DELETE RESTRICT</span>. MySQL will refuse to delete a node that still has devices, keys or history, and refuse to delete a device or destination that events refer to. There is no <i>cascade</i> that could silently wipe history. Instead of deleting, the application uses statuses (<span class="mono">ACTIVE</span>, <span class="mono">INACTIVE</span>, <span class="mono">OFFLINE</span>, <span class="mono">DISABLED</span>, <span class="mono">REVOKED</span>). Reports and investigations therefore always have the full record.</p>
+
+<h3>7.8 Transactions and integrity</h3>
+<p>Storing one event changes several rows: the new history row, the <span class="mono">last_seen</span> of the device, destination and node, the key's <span class="mono">last_used_at</span>, and possibly a new device or destination row. They are performed in <b>one transaction</b>: either every change is committed together or, on any error, none is. This is the <b>A</b>tomicity and <b>C</b>onsistency of ACID in practice. The locking reads give <b>I</b>solation between simultaneous events, and InnoDB's log gives <b>D</b>urability.</p>
+<table>
+  <tr><th>Mechanism</th><th>What it guarantees</th></tr>
+  <tr><td>Primary keys</td><td>Every row is uniquely identifiable</td></tr>
+  <tr><td>Foreign keys (incl. composite)</td><td>No event can point at something that does not exist, or at a device from the wrong node</td></tr>
+  <tr><td>UNIQUE constraints</td><td>No duplicate emails, node codes, device identifiers per node, destinations, or key hashes</td></tr>
+  <tr><td>NOT NULL, ENUM</td><td>Required values exist, and statuses and roles come from a fixed list</td></tr>
+  <tr><td>Transactions + locking reads</td><td>All-or-nothing writes; no race between simultaneous events</td></tr>
+  <tr><td>ON DELETE RESTRICT</td><td>No accidental loss of history</td></tr>
+</table>
+
+<h3>7.9 The SQL files, and how the database is created and changed</h3>
+<table>
+  <tr><th>File</th><th>Purpose</th><th>Safe?</th></tr>
+  <tr><td class="mono">database/schema.sql</td><td>Creates the database (if missing) and the six tables. Run once on a new setup.</td><td>Never drops or truncates anything</td></tr>
+  <tr><td class="mono">database/seed.sql</td><td>Demo data: 2 users, 4 nodes, 17 devices, 12 destinations, 4 collector keys and 815 events over the last 7 days, including cases that show the 30-second rule. Demo passwords are stored as bcrypt hashes.</td><td>No destructive commands</td></tr>
+  <tr><td class="mono">database/queries.sql</td><td>22 read-only demonstration queries (joins, GROUP BY, HAVING, LEFT JOIN, date filters, audits).</td><td>SELECT only</td></tr>
+  <tr><td class="mono">database/reset.sql</td><td>Drops and recreates the database for an intentional local reset.</td><td><b>The only destructive file.</b> Never run automatically by the app or by tools</td></tr>
+  <tr><td class="mono">backend/alembic/</td><td>Controlled migrations for <i>later</i> schema changes. Migration <span class="mono">0001</span> added <span class="mono">protocol</span>, <span class="mono">source_port</span> and <span class="mono">destination_port</span> to the live database without touching existing rows. It is idempotent (does nothing if the columns already exist, as on a fresh install).</td><td>Additive; creates the helper table <span class="mono">alembic_version</span></td></tr>
+</table>
+<p>The application never creates, drops or resets tables by itself. It connects to the existing database, and a test checks that the Python models match the live schema.</p>
+
+<h3>7.10 Example queries (from <span class="mono">queries.sql</span>)</h3>
+<h4>Recent activity: a four-table JOIN</h4>
+<pre><code>SELECT h.observed_at, dv.device_identifier, n.node_name,
+       d.ip_address AS destination_ip, d.domain
+FROM network_history h
+JOIN devices dv      ON dv.device_id      = h.device_id
+JOIN nodes n         ON n.node_id         = h.node_id
+JOIN destinations d  ON d.destination_id  = h.destination_id
+ORDER BY h.observed_at DESC
+LIMIT 20;</code></pre>
+<p>This one query reassembles names from ids. It is what the dashboard's "Recent network activity" table uses (with a <span class="mono">LIMIT</span>).</p>
+<h4>Most visited destinations: GROUP BY and HAVING</h4>
+<pre><code>SELECT d.domain, COUNT(*) AS visits, COUNT(DISTINCT h.device_id) AS unique_devices
+FROM network_history h
+JOIN destinations d ON d.destination_id = h.destination_id
+GROUP BY d.destination_id, d.domain
+HAVING COUNT(*) &gt;= 50          -- only busy destinations
+ORDER BY visits DESC;</code></pre>
+<h4>Devices that never produced an event: LEFT JOIN anti-join</h4>
+<pre><code>SELECT dv.device_identifier
+FROM devices dv
+LEFT JOIN network_history h ON h.device_id = dv.device_id
+WHERE h.history_id IS NULL;</code></pre>
+<h4>The duplicate check the backend runs</h4>
+<pre><code>SELECT history_id, observed_at
+FROM network_history
+WHERE device_id = ? AND destination_id = ?
+  AND observed_at BETWEEN (? - INTERVAL 30 SECOND) AND (? + INTERVAL 30 SECOND)
+ORDER BY observed_at DESC
+LIMIT 1
+FOR UPDATE;</code></pre>
+<p>A row returned means "duplicate: do not insert". It is fast because of the index on <span class="mono">(device_id, observed_at)</span>.</p>
+
+<!-- ============================================================ 8 -->
+<h2 id="s8"><span class="n">8</span>The frontend (React)</h2>
+<p>The frontend is a single-page application. After login the browser loads the app once, then moves between pages without reloading, fetching only data from the API.</p>
+
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 290" class="fig" role="img" aria-label="Structure of the React application">
+  <rect class="b bs" x="10" y="20" width="140" height="90" rx="8"/><text class="t" x="80" y="58" text-anchor="middle">Browser</text><text class="s" x="80" y="78" text-anchor="middle">administrator</text>
+  <rect class="b ba" x="185" y="20" width="200" height="90" rx="8"/><text class="t" x="285" y="50" text-anchor="middle">React Router</text><text class="s" x="285" y="70" text-anchor="middle">12 pages, loaded on demand</text><text class="s" x="285" y="88" text-anchor="middle">RequireAuth / RequireAdmin</text>
+  <rect class="b bg" x="420" y="20" width="190" height="90" rx="8"/><text class="t" x="515" y="50" text-anchor="middle">Pages</text><text class="s" x="515" y="70" text-anchor="middle">Dashboard, Nodes, Devices,</text><text class="s" x="515" y="88" text-anchor="middle">History, Reports, Users ...</text>
+  <rect class="b bw" x="650" y="20" width="240" height="90" rx="8"/><text class="t" x="770" y="50" text-anchor="middle">services/api.js</text><text class="s" x="770" y="70" text-anchor="middle">the ONLY code that calls fetch()</text><text class="s" x="770" y="88" text-anchor="middle">adds the token, reads errors</text>
+  <path class="ar" d="M150 65 H185"/><path class="ar" d="M385 65 H420"/><path class="ar" d="M610 65 H650"/>
+  <rect class="b" x="185" y="170" width="200" height="90" rx="8"/><text class="t" x="285" y="200" text-anchor="middle">Components</text><text class="s" x="285" y="220" text-anchor="middle">tables, charts (Recharts),</text><text class="s" x="285" y="238" text-anchor="middle">forms, modals, drawer</text>
+  <rect class="b" x="420" y="170" width="190" height="90" rx="8"/><text class="t" x="515" y="200" text-anchor="middle">Hooks</text><text class="s" x="515" y="220" text-anchor="middle">useAsync, useUrlState,</text><text class="s" x="515" y="238" text-anchor="middle">AuthProvider, useHealth</text>
+  <path class="ar" d="M470 110 V140 H300 V170"/><path class="ar" d="M515 110 V170"/>
+  <path class="ar" d="M610 215 H630 V90 H650"/><path class="ar" d="M770 110 V170"/>
+  <rect class="bd" x="650" y="170" width="240" height="90" rx="8"/><text class="s" x="770" y="224" text-anchor="middle">GET/POST /api/...  (Vite proxies</text><text class="s" x="770" y="242" text-anchor="middle">to FastAPI while developing)</text>
+</svg>
+</div>
+<figcaption><b>Figure 9.</b> Pages use components for display and hooks for data. Hooks call one service layer that talks to the backend. No component ever calls the network directly.</figcaption>
+</figure>
+
+<h3>8.1 What the dashboard looks like</h3>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 440" class="fig" role="img" aria-label="Wireframe of the dashboard page">
+  <rect x="0" y="0" width="900" height="440" rx="10" fill="#0b1220"/>
+  <rect x="0" y="0" width="170" height="440" rx="10" fill="#0f172a"/>
+  <text x="18" y="32" fill="#e2e8f0" font-size="15" font-weight="700">NetMonitor</text>
+  <g font-size="13" fill="#94a3b8">
+    <rect x="10" y="52" width="150" height="28" rx="6" fill="#1e3a8a"/><text x="22" y="71" fill="#fff">Dashboard</text>
+    <text x="22" y="102">Nodes</text><text x="22" y="130">Devices</text><text x="22" y="158">History</text><text x="22" y="186">Destinations</text><text x="22" y="214">Reports</text>
+    <text x="22" y="370">Users (admin)</text><text x="22" y="398">Settings</text>
+  </g>
+  <rect x="170" y="0" width="730" height="44" fill="#0f172a"/><text x="190" y="28" fill="#e2e8f0" font-size="15" font-weight="700">Dashboard</text>
+  <rect x="720" y="10" width="62" height="24" rx="12" fill="none" stroke="#d97706"/><text x="751" y="26" fill="#fbbf24" font-size="11" text-anchor="middle">Demo data</text>
+  <g>
+    <rect x="190" y="60" width="162" height="68" rx="8" fill="#111c33" stroke="#1e293b"/><text x="204" y="84" fill="#94a3b8" font-size="11">ACTIVE NODES</text><text x="204" y="112" fill="#fff" font-size="24" font-weight="700">4</text>
+    <rect x="366" y="60" width="162" height="68" rx="8" fill="#111c33" stroke="#1e293b"/><text x="380" y="84" fill="#94a3b8" font-size="11">REGISTERED DEVICES</text><text x="380" y="112" fill="#fff" font-size="24" font-weight="700">17</text>
+    <rect x="542" y="60" width="162" height="68" rx="8" fill="#111c33" stroke="#1e293b"/><text x="556" y="84" fill="#94a3b8" font-size="11">TODAY'S EVENTS</text><text x="556" y="112" fill="#fff" font-size="24" font-weight="700">128</text>
+    <rect x="718" y="60" width="162" height="68" rx="8" fill="#111c33" stroke="#1e293b"/><text x="732" y="84" fill="#94a3b8" font-size="11">KNOWN DESTINATIONS</text><text x="732" y="112" fill="#fff" font-size="24" font-weight="700">12</text>
+  </g>
+  <rect x="190" y="142" width="440" height="150" rx="8" fill="#111c33" stroke="#1e293b"/><text x="204" y="164" fill="#e2e8f0" font-size="12" font-weight="700">Network activity over time</text>
+  <path d="M204 270 L250 250 L296 258 L342 222 L388 236 L434 196 L480 214 L526 182 L572 200 L618 188" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+  <path d="M204 270 L250 250 L296 258 L342 222 L388 236 L434 196 L480 214 L526 182 L572 200 L618 188 V280 H204 Z" fill="#3b82f6" opacity=".18"/>
+  <rect x="644" y="142" width="236" height="150" rx="8" fill="#111c33" stroke="#1e293b"/><text x="658" y="164" fill="#e2e8f0" font-size="12" font-weight="700">Top destinations</text>
+  <g fill="#3b82f6"><rect x="658" y="178" width="170" height="12" rx="3"/><rect x="658" y="200" width="130" height="12" rx="3"/><rect x="658" y="222" width="104" height="12" rx="3"/><rect x="658" y="244" width="76" height="12" rx="3"/><rect x="658" y="266" width="52" height="12" rx="3"/></g>
+  <rect x="190" y="306" width="690" height="120" rx="8" fill="#111c33" stroke="#1e293b"/><text x="204" y="328" fill="#e2e8f0" font-size="12" font-weight="700">Recent network activity</text>
+  <g font-size="11" fill="#94a3b8"><text x="204" y="350">TIME</text><text x="290" y="350">DEVICE</text><text x="420" y="350">NODE</text><text x="520" y="350">DESTINATION</text></g>
+  <g font-size="12" fill="#e2e8f0"><text x="204" y="372">20:18:57</text><text x="290" y="372">PC-LAB-A-001</text><text x="420" y="372">LAB-A</text><text x="520" y="372">github.com <tspan fill="#64748b">443/TCP</tspan></text>
+    <text x="204" y="394">20:18:54</text><text x="290" y="394">PC-LAB-B-002</text><text x="420" y="394">LAB-B</text><text x="520" y="394">youtube.com</text>
+    <text x="204" y="416">20:18:41</text><text x="290" y="416">PC-LIB-001</text><text x="420" y="416">LIB-01</text><text x="520" y="416">wikipedia.org</text></g>
+</svg>
+</div>
+<figcaption><b>Figure 10.</b> A simplified sketch of the dashboard (a dark "network operations" style). The real page also has "Most active devices", "Node activity", a time-range switch (24 hours, 7 days, 30 days), a Refresh button and live updates every 15 seconds.</figcaption>
+</figure>
+
+<h3>8.2 Pages</h3>
+<table>
+  <tr><th>Route</th><th>Page</th><th>What it does</th><th>Who</th></tr>
+  <tr><td class="mono">/login</td><td>Sign in</td><td>Email and password; shows demo accounts in development builds only</td><td>everyone</td></tr>
+  <tr><td class="mono">/dashboard</td><td>Dashboard</td><td>Four key numbers, activity chart, top destinations, most active devices, node activity, recent events</td><td>signed in</td></tr>
+  <tr><td class="mono">/nodes, /nodes/:id</td><td>Nodes</td><td>List with search and status filter; detail with devices, 7-day chart and recent activity; add, edit, disable</td><td>read: all · write: <span class="pill admin">ADMIN</span></td></tr>
+  <tr><td class="mono">/devices, /devices/:id</td><td>Devices</td><td>List with filters; detail with metadata, activity chart, recent destinations and a paged history</td><td>signed in</td></tr>
+  <tr><td class="mono">/history</td><td>Network history</td><td>The main investigation page: search text, node, destination and date filters, paging, event detail panel with protocol and ports</td><td>signed in</td></tr>
+  <tr><td class="mono">/destinations, /destinations/:id</td><td>Destinations</td><td>List and investigation: events, unique devices, nodes that saw it, devices that accessed it</td><td>signed in</td></tr>
+  <tr><td class="mono">/reports</td><td>Reports</td><td>Top destinations, top devices, node activity, activity over time, for 24 h / 7 d / 30 d or a custom range</td><td>signed in</td></tr>
+  <tr><td class="mono">/users</td><td>Users</td><td>Add, edit, disable accounts</td><td><span class="pill admin">ADMIN</span></td></tr>
+  <tr><td class="mono">/settings</td><td>Settings</td><td>Your account, system health, how the 30-second rule works, sign out</td><td>signed in</td></tr>
+</table>
+
+<h3>8.3 Behaviors worth knowing</h3>
+<ul>
+  <li><b>Every data page handles three states:</b> a loading skeleton, an empty state ("No network activity found. Try changing your filters.") and an error state with a Try again button. A missing record shows "Not found" with a link back.</li>
+  <li><b>Search and filters run on the backend.</b> The browser sends the filters in the request; it never downloads the whole table and filters it itself. The filters are kept in the address bar, so a filtered view can be bookmarked or shared.</li>
+  <li><b>The session</b> (token and user) is kept in the browser's local storage. A request answered with 401 ends the session and returns to the login page.</li>
+  <li><b>Role guards in the UI</b> hide pages and buttons the user cannot use, but the backend enforces the same rules, so they are a convenience only.</li>
+  <li><b>Responsive:</b> a persistent sidebar on desktop, a slide-in menu on phones; wide tables scroll inside their own box; the source-port column hides on narrow screens. Verified at 1280, 768 and 375 pixels wide.</li>
+  <li><b>Honest display:</b> a missing value is a dash, a destination without a name shows its IP marked "(unresolved)", and nothing is invented.</li>
+</ul>
+
+<!-- ============================================================ 9 -->
+<h2 id="s9"><span class="n">9</span>Security</h2>
+<table>
+  <tr><th>Area</th><th>What was done</th></tr>
+  <tr><td>Passwords</td><td>Hashed with bcrypt (work factor 12, never below 10). Never stored, returned or logged. Unknown emails take the same time as wrong passwords, and the message is the same for both.</td></tr>
+  <tr><td>Login tokens</td><td>JWT signed with HS256 (the algorithm is fixed, so a token cannot choose its own). The token carries only the user id and an expiry (60 minutes); role and status are re-read from the database on every request. The server refuses to start without a random secret of at least 32 characters, and rejects placeholder values.</td></tr>
+  <tr><td>Roles</td><td>ADMIN and ANALYST are enforced by the backend on every protected route (401 not signed in, 403 not allowed). The last active admin cannot be disabled or demoted.</td></tr>
+  <tr><td>Collector keys</td><td>Random secrets, stored only as SHA-256 hashes, tied to one node, revocable. The node always comes from the key, never from the payload.</td></tr>
+  <tr><td>SQL injection</td><td>All queries go through SQLAlchemy with bound parameters. Tests send injection strings through every search box, the login form and URL ids. SQL errors never echo bound values.</td></tr>
+  <tr><td>Input validation</td><td>Pydantic checks types, lengths, IP formats, port ranges and protocol values; unknown fields are rejected; page size and page number are capped.</td></tr>
+  <tr><td>Browser protection</td><td>CORS allows only the configured frontend origin, without credentials. Responses carry <span class="mono">X-Content-Type-Options</span>, <span class="mono">X-Frame-Options</span>, <span class="mono">Referrer-Policy</span> and <span class="mono">Cache-Control: no-store</span>. React escapes all displayed data, and no raw HTML is injected.</td></tr>
+  <tr><td>Errors and logging</td><td>No stack traces or internals reach the client; validation errors do not repeat the submitted input.</td></tr>
+  <tr><td>Exposure</td><td>Interactive API docs can be switched off for deployment. The database health check needs a login. Secrets live in environment variables and <span class="mono">.env</span> files that are not committed.</td></tr>
+  <tr><td>Privacy scope</td><td>Metadata only. The collectors contain no packet capture, scanning, discovery, payload or process-name collection, and the local collector sees only the computer it runs on.</td></tr>
+  <tr><td>Dependencies</td><td>Checked with <span class="mono">pip-audit</span> and <span class="mono">npm audit</span> during the final audit (no known vulnerabilities at that time).</td></tr>
+</table>
+
+<!-- ============================================================ 10 -->
+<h2 id="s10"><span class="n">10</span>Testing and quality</h2>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 230" class="fig" role="img" aria-label="Number of automated tests per part">
+  <text class="t" x="450" y="24" text-anchor="middle">Automated tests: 864 in total</text>
+  <text class="lbl" x="20" y="72">Backend</text><rect x="130" y="52" width="476" height="30" rx="5" fill="#2563eb"/><text x="616" y="73" class="lbl">306</text>
+  <text class="lbl" x="20" y="122">Collector</text><rect x="130" y="102" width="308" height="30" rx="5" fill="#059669"/><text x="448" y="123" class="lbl">198</text>
+  <text class="lbl" x="20" y="172">Frontend</text><rect x="130" y="152" width="560" height="30" rx="5" fill="#7c3aed"/><text x="700" y="173" class="lbl">360</text>
+  <text class="s" x="450" y="214" text-anchor="middle">Backend: pytest on a real MySQL database. Collector: pytest. Frontend: Vitest + React Testing Library.</text>
+</svg>
+</div>
+<figcaption><b>Figure 11.</b> Test counts at the end of the project.</figcaption>
+</figure>
+<div class="grid3">
+  <div class="card"><h4>Backend tests</h4><p>Run against real MySQL inside a transaction that is rolled back, so the demo data is never changed. They cover login and roles, every endpoint, ingestion and the 30-second rule (including races and rollbacks), foreign keys, and security hardening.</p></div>
+  <div class="card"><h4>Collector tests</h4><p>The Windows connection table is replaced by hand-built bytes, so tests never depend on real traffic. They cover parsing, new-versus-seen detection, domain choice, retries, bad data and Ctrl+C.</p></div>
+  <div class="card"><h4>Frontend tests</h4><p>A fake <span class="mono">fetch</span> stands in for the backend. Tests cover login, route guards, every page, loading, empty, error and not-found states, and fail on any unexpected network call or console warning.</p></div>
+</div>
+<p>In addition, the frontend passes lint (oxlint) and builds for production without errors. Code size at the end: about 2,300 lines of backend application code, 1,000 of collector code and 3,950 of frontend code, plus roughly 6,600 lines of tests and 1,800 of SQL.</p>
+
+<!-- ============================================================ 11 -->
+<h2 id="s11"><span class="n">11</span>Running the project</h2>
+<h3>11.1 Requirements</h3>
+<p>MySQL 8 or newer, Python 3.11 or newer, Node.js 20.19 or newer. The real local collector needs Windows.</p>
+<h3>11.2 One-time setup</h3>
+<pre><code># 1. create and seed the database
+mysql -u root -p &lt; database/schema.sql
+mysql -u root -p &lt; database/seed.sql
+
+# 2. backend: virtual environment, packages, settings
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env        # then set DATABASE_PASSWORD and a random JWT_SECRET (32+ characters)
+
+# 3. frontend packages
+cd ../frontend
+npm install
+
+# 4. collector packages
+cd ../collector
+pip install -r requirements.txt</code></pre>
+<h3>11.3 Every time: three terminals</h3>
+<pre><code># terminal 1: backend
+cd backend
+.venv\Scripts\python.exe -m uvicorn app.main:app --port 8000
+
+# terminal 2: frontend  (then open http://localhost:5173)
+cd frontend
+npm.cmd run dev -- --host
+
+# terminal 3: collector
+cd collector
+$env:COLLECTOR_API_KEY="&lt;a key from seed.sql, or one made by create_collector_key.py&gt;"
+python collector.py                       # simulator (demo data)
+python collector.py local --interval 2    # real TCP connections of this PC</code></pre>
+<p>Sign in with one of the demo accounts listed at the top of <span class="mono">database/seed.sql</span> (one ADMIN, one ANALYST) and change those passwords before any real use.</p>
+<h3>11.4 Handy commands</h3>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td class="mono">python collector.py check</td><td>Checks that the backend is reachable and the API key is accepted (stores nothing)</td></tr>
+  <tr><td class="mono">python collector.py demo-dedup</td><td>Shows the 30-second rule step by step</td></tr>
+  <tr><td class="mono">python collector.py local-dns</td><td>Reports the site names this PC looks up</td></tr>
+  <tr><td class="mono">python create_collector_key.py --node-code HOME-PC --node-name "My Computer"</td><td>Creates a node and a collector key (shown once)</td></tr>
+  <tr><td class="mono">alembic upgrade head</td><td>Applies database migrations (run in <span class="mono">backend/</span>)</td></tr>
+  <tr><td class="mono">python -m pytest</td><td>Runs the backend or collector tests</td></tr>
+  <tr><td class="mono">npm test · npm run lint · npm run build</td><td>Frontend tests, lint and production build</td></tr>
+</table>
+
+<!-- ============================================================ 12 -->
+<h2 id="s12"><span class="n">12</span>Limitations and future work</h2>
+<h3>12.1 Known limitations</h3>
+<ul>
+  <li><b>The real collector sees one computer, TCP only.</b> Phones, other laptops and router traffic are invisible to it, and UDP/QUIC visits (common for large video and search sites) are not captured. Browsers that use their own DNS can leave destinations without a name.</li>
+  <li><b>No login rate limiting.</b> Repeated password guesses are only slowed by bcrypt itself; a limiter should be added at the web server in a real deployment.</li>
+  <li><b>No audit log</b> of who did what (only unhandled errors are logged).</li>
+  <li><b>Tokens cannot be revoked early</b> except by disabling the user, and they live in browser storage, so a Content-Security-Policy should be added at the web server in production.</li>
+  <li><b>API keys are created with a script</b> (or in the database); there is no screen for managing them.</li>
+  <li><b>Times are naive local server time</b>, with no time-zone conversion.</li>
+  <li><b>Simulated and real events look the same</b> in the history; only the node tells them apart.</li>
+</ul>
+<h3>12.2 Ideas for the future</h3>
+<ul>
+  <li>A DNS-based collector (for example reading a DNS server's log on a home network the owner controls) to see names from many devices without packet capture.</li>
+  <li>Authorized gateway observation for UDP and QUIC metadata, kept strictly to headers and never contents.</li>
+  <li>Alerts for unusual behavior (for example a burst of connections) as a separate, clearly scoped feature.</li>
+  <li>A screen for managing collector keys, an audit log, login rate limiting, HTTPS deployment, and a marker column for simulated events.</li>
+</ul>
+
+<!-- ============================================================ 13 -->
+<h2 id="s13"><span class="n">13</span>Glossary</h2>
+<table>
+  <tr><th>Term</th><th>Meaning</th></tr>
+  <tr><td>Node</td><td>An authorized observation point (a lab, the library, "this PC").</td></tr>
+  <tr><td>Device</td><td>A machine seen by a node, identified by a logical identifier (not its IP).</td></tr>
+  <tr><td>Destination</td><td>A place that was reached: an IP address and, when known, a domain name.</td></tr>
+  <tr><td>Event / history row</td><td>One stored record: a device reached a destination at a time.</td></tr>
+  <tr><td>Collector</td><td>The program that observes (or simulates) activity and reports it to the backend.</td></tr>
+  <tr><td>Metadata</td><td>Facts about a connection (who, where, when, ports), not its contents.</td></tr>
+  <tr><td>REST API</td><td>A set of web addresses that accept and return JSON, used by the frontend and the collector.</td></tr>
+  <tr><td>JWT</td><td>JSON Web Token: a signed, expiring proof of login sent with each request.</td></tr>
+  <tr><td>bcrypt</td><td>A deliberately slow password-hashing function.</td></tr>
+  <tr><td>ORM / SQLAlchemy</td><td>A library that maps tables to Python classes and builds safe SQL.</td></tr>
+  <tr><td>Foreign key</td><td>A column that must match a row in another table, so links cannot break.</td></tr>
+  <tr><td>Index</td><td>A sorted lookup structure that makes searches faster.</td></tr>
+  <tr><td>Transaction</td><td>A group of changes that either all happen or none do.</td></tr>
+  <tr><td>Normalization (3NF)</td><td>Storing each fact once so data stays consistent.</td></tr>
+  <tr><td>Migration</td><td>A controlled script that changes an existing database structure.</td></tr>
+  <tr><td>TCP / UDP / QUIC</td><td>Network protocols. TCP is connection based; UDP is not; QUIC (used by HTTP/3) runs on UDP.</td></tr>
+  <tr><td>DNS</td><td>The system that turns a name such as github.com into an IP address.</td></tr>
+</table>
+
+<footer>Private Network Monitoring System - project report. Metadata only, for networks you are authorized to monitor. The figures and example rows are illustrative; the numbers come from the demo seed data.</footer>
+</div>
+</body>
+</html>

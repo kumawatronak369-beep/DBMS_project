@@ -1,0 +1,432 @@
+NETWORK MONITORING SYSTEM
+=========================
+
+This file explains how another person can set up and run the project on their
+own Windows computer.
+
+PROJECT STRUCTURE
+-----------------
+
+network_monitor/
+|
++-- server/
+|   +-- app.py
+|   +-- routes/
+|   |   +-- events.py
+|   |   +-- dashboard.py
+|   |
+|   +-- dashboard/
+|   |   +-- dashboard.html
+|   |   +-- css/
+|   |   |   +-- dashboard.css
+|   |   +-- js/
+|   |       +-- dashboard.js
+|   |       +-- charts.js
+|   |       +-- device_activity.js
+|   |
+|   +-- collector/
+|       +-- main.py
+|       +-- packet_capture.py
+|       +-- event_builder.py
+|       +-- event_deduplicator.py
+|       +-- dns_tracker.py
+|       +-- api_client.py
+|       +-- config.py
+|
++-- database/
+    +-- database.sql
+
+
+REQUIREMENTS
+------------
+
+Operating system:
+- Windows 10/11 recommended
+
+Software:
+- Python 3.10 or newer
+- MySQL 8.x
+- WinPcap/Npcap (required by Scapy for packet capture)
+- A phone/device connected to the same network as the monitoring computer
+
+
+PYTHON PACKAGES
+---------------
+
+Install the required Python packages from PowerShell:
+
+    pip install flask
+    pip install requests
+    pip install scapy
+    pip install mysql-connector-python
+
+If a requirements.txt file is included with the project, use:
+
+    pip install -r requirements.txt
+
+
+DATABASE SETUP
+--------------
+
+1. Install MySQL.
+
+2. Start the MySQL server.
+
+3. Create the project database.
+
+4. Import the database SQL file:
+
+    mysql -u root -p < database.sql
+
+If the SQL file uses a specific database name, check the SQL file before
+importing it.
+
+5. Verify the main tables exist:
+
+    SHOW TABLES;
+
+The project currently uses tables including:
+
+    devices
+    destinations
+    browsing_history
+
+The browsing_history table contains:
+
+    history_id
+    device_id
+    destination_id
+    access_time
+    protocol
+    source_ip
+    source_port
+    destination_port
+    recorded_at
+
+
+CONFIGURATION
+-------------
+
+Before starting the project, edit the configuration file:
+
+    server/collector/config.py
+
+Set the MySQL connection information to match the new computer.
+
+Typical values include:
+
+    DB_HOST
+    DB_PORT
+    DB_USER
+    DB_PASSWORD
+    DB_NAME
+
+Also configure the network-monitoring values:
+
+    INTERFACE
+    DEVICE_IP
+    DEVICE_MAC
+    GATEWAY_NODE
+    DNS_CACHE_TTL
+    DEDUP_WINDOW
+
+IMPORTANT:
+DEVICE_IP and DEVICE_MAC must belong to the device/phone that is being
+monitored.
+
+INTERFACE must be the network interface through which the required packets
+can be captured.
+
+
+FINDING THE PHONE IP AND MAC ADDRESS
+------------------------------------
+
+On Windows, the ARP table can be checked with:
+
+    arp -a
+
+or:
+
+    Get-NetNeighbor -AddressFamily IPv4
+
+Find the phone's IP address and MAC address.
+
+Example:
+
+    192.168.137.187
+    46-CB-05-37-A9-99
+
+Do NOT copy these example values blindly. They will be different on another
+network/device.
+
+
+STARTING THE FLASK SERVER
+-------------------------
+
+Open PowerShell.
+
+Go to the server directory:
+
+    cd "D:\path\to\network_monitor\server"
+
+Start Flask:
+
+    python app.py
+
+The server normally runs on:
+
+    http://127.0.0.1:5000
+
+
+OPENING THE DASHBOARD
+---------------------
+
+Do NOT open dashboard.html directly with File Explorer.
+
+Open the dashboard through Flask:
+
+    http://127.0.0.1:5000/dashboard
+
+The Flask server provides the dashboard HTML, CSS and JavaScript files.
+
+
+STARTING THE COLLECTOR
+----------------------
+
+Open a second PowerShell window.
+
+Go to the collector directory:
+
+    cd "D:\path\to\network_monitor\server\collector"
+
+Start the collector:
+
+    python main.py
+
+The collector should display:
+
+    NETWORK MONITOR COLLECTOR
+
+and then start packet capture.
+
+On Windows, packet capture may require running PowerShell/Command Prompt
+with Administrator privileges.
+
+
+TESTING THE SYSTEM
+------------------
+
+1. Start MySQL.
+2. Start the Flask server.
+3. Start the packet collector.
+4. Connect the test phone/device to the same network.
+5. Generate normal network traffic on the phone.
+6. Open:
+
+       http://127.0.0.1:5000/dashboard
+
+7. Check that events appear in the dashboard.
+
+The collector should show messages similar to:
+
+    NEW EVENT
+    API STATUS: 200
+
+For DNS correlation, messages can appear as:
+
+    DNS QUERY: example.com
+
+and:
+
+    DNS RESPONSE: example.com -> x.x.x.x
+
+A successfully correlated event may contain:
+
+    'domain': 'example.com'
+
+
+API ENDPOINTS
+-------------
+
+The current Flask API includes:
+
+    POST /api/v1/network-events
+
+    POST /api/v1/network-events/dns-correlation
+
+    GET /api/v1/dashboard/devices
+
+    GET /api/v1/dashboard/summary
+
+    GET /api/v1/dashboard/devices/<device_id>/activity
+
+    GET /api/v1/dashboard/events-over-time
+
+    GET /api/v1/dashboard/top-destinations
+
+
+COMMON PROBLEMS
+---------------
+
+1. Dashboard shows 404
+-----------------------
+
+Make sure the dashboard folder is inside the same server directory as app.py:
+
+    server/
+    +-- app.py
+    +-- dashboard/
+        +-- dashboard.html
+        +-- css/
+        +-- js/
+
+Open the dashboard through:
+
+    http://127.0.0.1:5000/dashboard
+
+
+2. Dashboard opens but CSS/JavaScript does not load
+----------------------------------------------------
+
+Check that these files exist:
+
+    dashboard/css/dashboard.css
+    dashboard/js/dashboard.js
+    dashboard/js/charts.js
+    dashboard/js/device_activity.js
+
+Do not open dashboard.html directly.
+
+
+3. No packets are captured
+---------------------------
+
+Check:
+
+- Npcap is installed.
+- The correct INTERFACE is selected.
+- DEVICE_IP is correct.
+- The collector is running with sufficient permissions.
+- The phone and computer are connected to the expected network.
+
+
+4. Database connection error
+----------------------------
+
+Check the database settings in config.py.
+
+Verify MySQL is running.
+
+Test the credentials directly with MySQL.
+
+
+5. Events are stored but domains are NULL
+------------------------------------------
+
+DNS correlation depends on observing DNS responses.
+
+Some traffic can legitimately remain without a domain because of:
+
+- DNS caching
+- encrypted DNS
+- traffic observed after resolution
+- services using other resolution mechanisms
+- IPv6 or non-A-record resolution
+
+The project currently performs IPv4 A-record DNS correlation.
+
+
+6. API returns 200 but dashboard has no data
+---------------------------------------------
+
+Test the API directly:
+
+    python -c "import requests; r=requests.get('http://127.0.0.1:5000/api/v1/dashboard/summary'); print(r.status_code); print(r.json())"
+
+If this returns success and data, the backend is working.
+
+
+SECURITY / PRIVACY NOTE
+-----------------------
+
+This project is intended for monitoring devices/networks that you own or
+have explicit permission to monitor.
+
+Packet capture can expose sensitive network metadata. Use the system only
+on authorized networks and devices.
+
+
+CURRENT FEATURES
+----------------
+
+The current project includes:
+
+- Network packet capture using Scapy
+- TCP and UDP event detection
+- Source/destination IP tracking
+- Source/destination port tracking
+- Device registration
+- Destination tracking
+- DNS-to-IP correlation
+- Event deduplication
+- Flask REST API
+- Dashboard
+- Connected device view
+- Device activity view
+- Events Over Time chart
+- Top Destinations chart
+- TCP vs UDP visualization
+- Automatic dashboard refresh
+
+
+RECOMMENDED STARTUP ORDER
+-------------------------
+
+Every time the system is started:
+
+1. Start MySQL.
+2. Start Flask:
+
+       cd server
+       python app.py
+
+3. Start the collector in another terminal:
+
+       cd server/collector
+       python main.py
+
+4. Open:
+
+       http://127.0.0.1:5000/dashboard
+
+
+FOR A NEW COMPUTER
+------------------
+
+The person receiving the project should:
+
+1. Copy the entire project folder.
+2. Install Python.
+3. Install MySQL.
+4. Install Npcap.
+5. Install Python packages.
+6. Create/import the database.
+7. Edit config.py with their database and network information.
+8. Identify the device IP/MAC address.
+9. Start app.py.
+10. Start collector/main.py.
+11. Open the dashboard.
+
+
+IMPORTANT
+---------
+
+Do not copy the old computer's:
+
+- IP address
+- MAC address
+- MySQL password
+- network interface name
+
+These values are computer/network specific and must be configured for the
+new environment.

@@ -1,0 +1,4 @@
+requests>=2.32
+
+# testing (optional): python -m pytest
+pytest>=8.0
